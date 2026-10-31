@@ -21,7 +21,7 @@ const app = express();
 // --- Core middleware ---
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'https://shopcom-frontend.onrender.com',
+    origin: "https://shopcom-frontend.onrender.com"|| "https://shopcom-frontend.onrender.com",
     credentials: true,
   })
 );
