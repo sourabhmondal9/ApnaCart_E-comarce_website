@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 const Footer = () => (
   <footer className="footer">
@@ -12,24 +12,25 @@ const Footer = () => (
       <div>
         <h4>Shop</h4>
         <ul>
-          <li>Electronics</li>
-          <li>Clothing</li>
-          <li>Books</li>
-          <li>Home &amp; Kitchen</li>
+          <li><Link to="/products">All Products</Link></li>
+          <li><Link to="/products">Electronics</Link></li>
+          <li><Link to="/products">Clothing</Link></li>
+          <li><Link to="/products">Books</Link></li>
         </ul>
       </div>
       <div>
         <h4>Account</h4>
         <ul>
-          <Link to="/my-orders" onClick={() => setMenuOpen(false)}>
-            <li>My Orders</li>
-          </Link>
-          <Link to="/profile" onClick={() => setMenuOpen(false)}>
-            <li>Profile</li>
-          </Link>
-          <Link to="/cart" onClick={() => setMenuOpen(false)}>
-            <li>Cart</li>
-          </Link>
+          <li><Link to="/my-orders">My Orders</Link></li>
+          <li><Link to="/profile">Profile</Link></li>
+          <li><Link to="/cart">Cart</Link></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><Link to="/about">About Us</Link></li>
+          <li><Link to="/contact">Contact</Link></li>
         </ul>
       </div>
     </div>

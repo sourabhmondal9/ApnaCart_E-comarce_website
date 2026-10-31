@@ -12,6 +12,7 @@ import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 
 import notFound from './middleware/notFoundMiddleware.js';
 import errorMiddleware from './middleware/errorMiddleware.js';
@@ -40,6 +41,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/contact', contactRoutes);
 
 // --- 404 + centralized error handling (must be last) ---
 app.use('/api', notFound);

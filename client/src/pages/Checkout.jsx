@@ -194,7 +194,7 @@ const Checkout = () => {
             <strong>Total</strong>
             <strong>{formatCurrency(cart.subtotal)}</strong>
           </div>
-          <p className="cart-note">The final total is recalculated and confirmed.</p>
+          <p className="cart-note">The final total is recalculated and confirmed by the server.</p>
         </div>
       </div>
     </div>

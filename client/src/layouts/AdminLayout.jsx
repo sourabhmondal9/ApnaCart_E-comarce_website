@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, Tags, ClipboardList, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Package, Tags, ClipboardList, Mail, ArrowLeft } from 'lucide-react';
 
 const AdminLayout = () => (
   <div className="admin-shell">
@@ -18,6 +18,9 @@ const AdminLayout = () => (
         </NavLink>
         <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')}>
           <ClipboardList size={18} aria-hidden="true" /> Orders
+        </NavLink>
+        <NavLink to="/admin/messages" className={({ isActive }) => (isActive ? 'active' : '')}>
+          <Mail size={18} aria-hidden="true" /> Messages
         </NavLink>
         <NavLink to="/" className="admin-back-link">
           <ArrowLeft size={18} aria-hidden="true" /> Back to store

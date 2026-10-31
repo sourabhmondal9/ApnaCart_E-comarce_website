@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Package, Tags, Users, ClipboardList, IndianRupee } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Package, Tags, Users, ClipboardList, IndianRupee, Mail } from 'lucide-react';
 import { fetchDashboardStats } from '../../services/orderService.js';
 import { formatCurrency } from '../../utils/formatCurrency.js';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
@@ -52,6 +53,14 @@ const AdminDashboard = () => {
             </div>
           </div>
         ))}
+
+        <Link to="/admin/messages" className="stat-card stat-card-link">
+          <Mail size={22} aria-hidden="true" />
+          <div>
+            <p className="stat-card-value">{stats.unresolvedMessages}</p>
+            <p className="stat-card-label">Unresolved Messages</p>
+          </div>
+        </Link>
       </div>
 
       <h2>Orders by Status</h2>

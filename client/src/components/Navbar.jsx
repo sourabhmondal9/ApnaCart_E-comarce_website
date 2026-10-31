@@ -56,7 +56,7 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <Link to="/my-orders" onClick={() => setMenuOpen(false)} className="navbar-icon-link">
-              <Package size={18} aria-hidden="true" />
+                <Package size={18} aria-hidden="true" />
                 My Orders
               </Link>
               <Link to="/profile" onClick={() => setMenuOpen(false)} className="navbar-icon-link">
