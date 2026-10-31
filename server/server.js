@@ -21,7 +21,7 @@ const app = express();
 // --- Core middleware ---
 app.use(
   cors({
-    origin: "https://shopcom-frontend.onrender.com"|| "https://shopcom-frontend.onrender.com",
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true,
   })
 );
