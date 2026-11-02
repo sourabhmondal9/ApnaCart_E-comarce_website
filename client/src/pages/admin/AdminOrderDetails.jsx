@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchOrderById, updateOrderStatus } from '../../services/orderService.js';
+import { Download } from 'lucide-react';
+import { fetchOrderById, updateOrderStatus, downloadInvoice } from '../../services/orderService.js';
 import { formatCurrency } from '../../utils/formatCurrency.js';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorMessage from '../../components/ErrorMessage.jsx';
@@ -19,6 +20,8 @@ const AdminOrderDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -50,6 +53,18 @@ const AdminOrderDetails = () => {
     }
   };
 
+  const handleDownloadInvoice = async () => {
+    setDownloading(true);
+    setDownloadError('');
+    try {
+      await downloadInvoice(order._id);
+    } catch (err) {
+      setDownloadError(err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} onRetry={load} />;
   if (!order) return <ErrorMessage message="Order not found." />;
@@ -61,11 +76,20 @@ const AdminOrderDetails = () => {
       <Link to="/admin/orders" className="back-link">
         &larr; Back to orders
       </Link>
-      <h1>Order #{order._id.slice(-8).toUpperCase()}</h1>
-      <p className="order-date">Placed on {new Date(order.createdAt).toLocaleString()}</p>
-      <p>
-        Customer: {order.user?.name} ({order.user?.email})
-      </p>
+      <div className="order-details-header">
+        <div>
+          <h1>Order #{order._id.slice(-8).toUpperCase()}</h1>
+          <p className="order-date">Placed on {new Date(order.createdAt).toLocaleString()}</p>
+          <p>
+            Customer: {order.user?.name} ({order.user?.email})
+          </p>
+        </div>
+        <button type="button" className="btn btn-secondary" disabled={downloading} onClick={handleDownloadInvoice}>
+          <Download size={16} aria-hidden="true" />
+          {downloading ? 'Preparing invoice...' : 'Download Invoice'}
+        </button>
+      </div>
+      {downloadError && <p className="form-error">{downloadError}</p>}
 
       <div className="order-details-grid">
         <div>

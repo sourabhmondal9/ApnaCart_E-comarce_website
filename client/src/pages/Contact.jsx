@@ -111,7 +111,7 @@ const Contact = () => {
           </p>
           <p className="contact-info-row">
             <MapPin size={18} aria-hidden="true" /> MCA Department, IMS Business School College Campus, Kolkata, India
-          </p>
+          </p>  
           <p className="field-note">
             This is a demo contact form for an academic project — messages are stored in the
             project&apos;s own database and reviewed by an administrator.

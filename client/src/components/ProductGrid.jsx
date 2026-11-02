@@ -5,7 +5,7 @@ const ProductGrid = ({ products, onAddToCart, addingId }) => {
   if (!products || products.length === 0) {
     return (
       <div className="empty-state">
-        <p>No products found. Try adjusting your search or filters.</p>
+        <p>No products found.</p>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-# ShopMCA — MERN Stack E-Commerce Website
+# ShopCom — MERN Stack E-Commerce Website
 ### MCA College Project: "Design and Development of an E-Commerce Website Using the MERN Stack"
 
 A full-stack e-commerce web application built with **MongoDB, Express.js, React.js and Node.js**.
@@ -82,7 +82,6 @@ MCA student presenting it at a viva, not just to work.
 ```bash
 cd server
 npm install
-cp .env.example .env
 ```
 
 Edit `server/.env`:
@@ -159,7 +158,6 @@ In a separate terminal:
 ```bash
 cd client
 npm install
-cp .env.example .env
 ```
 
 Edit `client/.env` if your API runs somewhere other than `http://localhost:5000/api`:
@@ -178,9 +176,18 @@ Open the printed URL (default `http://localhost:5173`).
 
 ## 6. Deploying Online
 
-For putting this live (e.g. to demo it beyond localhost), see **`DEPLOYMENT.md`** — it covers
-deploying the frontend to Netlify and the backend to Render, with exact settings and environment
-variables for both.
+Deploy both parts of ShopCom on Render: publish the React + Vite frontend as a **Static Site** and run the Express API as a **Web Service**. MongoDB Atlas provides the cloud database. Follow **`DEPLOYMENT.md`** for the Render configuration, environment variables, CORS setup, SPA rewrite, and deployment verification steps.
+
+## 6a. Order Invoices (PDF)
+
+Both the customer order-details page (`/my-orders/:id`) and the admin order-details page
+(`/admin/orders/:id`) have a **Download Invoice** button. It calls
+`GET /api/orders/:id/invoice`, which streams a PDF generated server-side with `pdfkit`
+(`server/utils/generateInvoicePdf.js`) — nothing is written to disk, and nothing is faked: the PDF
+is built from the same order document the page displays, so totals always match. The same
+ownership check used by `GET /api/orders/:id` applies (the order's own customer, or an admin, only).
+
+---
 
 ## 6b. About Us & Contact Pages
 

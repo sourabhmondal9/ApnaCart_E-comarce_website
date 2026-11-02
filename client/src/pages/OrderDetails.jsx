@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
-import { fetchOrderById } from '../services/orderService.js';
+import { Download } from 'lucide-react';
+import { fetchOrderById, downloadInvoice } from '../services/orderService.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
@@ -11,6 +12,8 @@ const OrderDetails = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -30,6 +33,18 @@ const OrderDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  const handleDownloadInvoice = async () => {
+    setDownloading(true);
+    setDownloadError('');
+    try {
+      await downloadInvoice(order._id);
+    } catch (err) {
+      setDownloadError(err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} onRetry={load} />;
   if (!order) return <ErrorMessage message="Order not found." />;
@@ -44,8 +59,17 @@ const OrderDetails = () => {
         <div className="toast toast-success">Your order was placed successfully!</div>
       )}
 
-      <h1>Order #{order._id.slice(-8).toUpperCase()}</h1>
-      <p className="order-date">Placed on {new Date(order.createdAt).toLocaleString()}</p>
+      <div className="order-details-header">
+        <div>
+          <h1>Order #{order._id.slice(-8).toUpperCase()}</h1>
+          <p className="order-date">Placed on {new Date(order.createdAt).toLocaleString()}</p>
+        </div>
+        <button type="button" className="btn btn-secondary" disabled={downloading} onClick={handleDownloadInvoice}>
+          <Download size={16} aria-hidden="true" />
+          {downloading ? 'Preparing invoice...' : 'Download Invoice'}
+        </button>
+      </div>
+      {downloadError && <p className="form-error">{downloadError}</p>}
 
       <div className="order-details-grid">
         <div>

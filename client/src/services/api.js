@@ -22,10 +22,23 @@ api.interceptors.request.use((config) => {
 // components don't need to know about axios internals.
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const status = error.response?.status;
-    const message = error.response?.data?.message || error.message || 'Something went wrong';
-    const details = error.response?.data?.details || null;
+    let payload = error.response?.data;
+
+    // requests made with responseType: 'blob' (e.g. invoice download) get
+    // their error body back as a Blob too, not parsed JSON — decode it
+    // here so callers still get a readable error message.
+    if (payload instanceof Blob && payload.type === 'application/json') {
+      try {
+        payload = JSON.parse(await payload.text());
+      } catch {
+        payload = null;
+      }
+    }
+
+    const message = payload?.message || error.message || 'Something went wrong';
+    const details = payload?.details || null;
 
     if (status === 401) {
       localStorage.removeItem('token');
