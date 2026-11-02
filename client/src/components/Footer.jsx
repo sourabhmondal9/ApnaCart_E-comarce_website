@@ -34,7 +34,7 @@ const Footer = () => (
         </ul>
       </div>
     </div>
-    <p className="footer-bottom">&copy; {new Date().getFullYear()} ShopMCA — College Project Demo.</p>
+    <p className="footer-bottom">&copy; {new Date().getFullYear()} ShopCom — By Sourabh.</p>
   </footer>
 );
 

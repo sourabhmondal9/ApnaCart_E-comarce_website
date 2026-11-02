@@ -20,7 +20,7 @@ export const streamInvoicePdf = (order, res) => {
   doc.pipe(res);
 
   // ----- Header -----
-  doc.fontSize(20).fillColor('#1e293b').text('ShopMCA', { continued: false });
+  doc.fontSize(20).fillColor('#1e293b').text('ShopCom', { continued: false });
   doc.fontSize(9).fillColor('#64748b').text('MCA Academic Project — E-Commerce Invoice');
   doc.moveDown(1.2);
 
