@@ -5,9 +5,9 @@ const Footer = () => (
   <footer className="footer">
     <div className="footer-inner">
       <div className="footer-webname">
-        <strong>ShopCom</strong>
-        <p>Shop Smart. Shop Simple</p>
-        <p>A project featuring product browsing, secure authentication, shopping cart management, and order processing.</p>
+        <strong>ApnaCart</strong>
+        <p>Apni Pasand. Apni Shoping.</p>
+        <p>Your ultimate destination for everyday essentials and trendy finds. Shop what you love, exactly the way you like it.</p>
       </div>
       <div>
         <h4>Shop</h4>
@@ -34,7 +34,7 @@ const Footer = () => (
         </ul>
       </div>
     </div>
-    <p className="footer-bottom">&copy; {new Date().getFullYear()} ShopCom — By Sourabh.</p>
+    <p className="footer-bottom">&copy; {new Date().getFullYear()} ApnaCart — By Sourabh.</p>
   </footer>
 );
 

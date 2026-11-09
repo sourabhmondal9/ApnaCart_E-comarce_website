@@ -4,6 +4,7 @@ import { ShoppingCart, User, Package, LogOut, LayoutDashboard, Menu, X } from 'l
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import SearchBar from './SearchBar.jsx';
+import logo1  from '/src/assets/logoNav.webp'
 
 const Navbar = () => {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
@@ -25,7 +26,7 @@ const Navbar = () => {
     <header className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo">
-          ShopCom
+          <img src={logo1} alt="apnaCartLogo" className="logo"/>
         </Link>
 
         <div className="navbar-search-desktop">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock } from 'lucide-react';
 import { sendContactMessage } from '../services/contactService.js';
 import { isValidEmail, required } from '../utils/validators.js';
 
@@ -100,21 +100,47 @@ const Contact = () => {
             {submitting ? 'Sending...' : 'Send Message'}
           </button>
         </form>
-
         <div className="contact-info">
-          <h2>Other Ways to Reach Us</h2>
-          <p className="contact-info-row">
-            <Mail size={18} aria-hidden="true" /> support@shopcom.example
+          <h2>We are here to help you.</h2>
+          <p className="contact-subtext">
+            Have a question about your order, delivery, return or payment? Our support team is here to help.
           </p>
-          <p className="contact-info-row">
-            <Phone size={18} aria-hidden="true" /> +91 79081 61009
-          </p>
-          <p className="contact-info-row">
-            <MapPin size={18} aria-hidden="true" /> MCA Department, IMS Business School College Campus, Kolkata, India
-          </p>  
+
+          <div className="contact-info-row">
+            <Mail size={18} aria-hidden="true" />
+            <div>
+              <strong>Email Us: </strong>
+              <span>support@apnacart.in</span>
+            </div>
+          </div>
+
+          <div className="contact-info-row">
+            <Phone size={18} aria-hidden="true" />
+            <div>
+              <strong>Call Us: </strong>
+              <span>+91 79081 61009</span>
+              <small>Mon - Sat, 9:00 AM to 9:00 PM</small>
+            </div>
+          </div>
+
+          <div className="contact-info-row">
+            <MapPin size={30} aria-hidden="true" />
+            <div>
+              <strong>Visit Us: </strong>
+              <span>ApnaCart Pvt. Ltd., IMS Business School Campus, Kolkata, West Bengal, India</span>
+            </div>
+          </div>
+
+          <div className="contact-info-row">
+            <Clock size={20} aria-hidden="true" />
+            <div>
+              <strong>Support Hours: </strong>
+              <span>Mon - Sat: 9 AM - 9 PM | Sun: 10 AM - 6 PM</span>
+            </div>
+          </div>
+
           <p className="field-note">
-            This is a demo contact form for an academic project — messages are stored in the
-            project&apos;s own database and reviewed by an administrator.
+            We aim to respond within 24 hours on working days. Your message is handled by our support team.
           </p>
         </div>
       </div>

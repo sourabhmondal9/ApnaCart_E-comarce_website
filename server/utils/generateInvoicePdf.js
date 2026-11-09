@@ -1,13 +1,14 @@
 import PDFDocument from 'pdfkit';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-/**
- * Streams a PDF invoice for the given order directly into an HTTP
- * response. Keeps layout logic in one place so both the customer-facing
- * and admin-facing "download invoice" routes render identically.
- *
- * `order` must already have `user` populated (name, email) — the caller
- * is responsible for ownership/authorization checks before calling this.
- */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Path to your logo - change this to where your logo actually is
+const LOGO_PATH = path.join(__dirname, '../assets/logoNav.webp');
+
 const formatINR = (amount) => `Rs. ${Number(amount || 0).toFixed(2)}`;
 
 export const streamInvoicePdf = (order, res) => {
@@ -19,18 +20,32 @@ export const streamInvoicePdf = (order, res) => {
 
   doc.pipe(res);
 
-  // ----- Header -----
-  doc.fontSize(20).fillColor('#1e293b').text('ShopCom', { continued: false });
-  doc.fontSize(9).fillColor('#64748b').text('MCA Academic Project — E-Commerce Invoice');
-  doc.moveDown(1.2);
+  // ----- Header with Logo -----
+  const headerY = doc.y;
 
-  doc.fontSize(16).fillColor('#1e293b').text('INVOICE', { align: 'right' });
+  if (fs.existsSync(LOGO_PATH)) {
+    // Logo on left, 140px wide, keep aspect ratio
+    doc.image(LOGO_PATH, 50, headerY, { width: 140 });
+    // Tagline under logo
+    doc.fontSize(9).fillColor('#64748b').text('ApnaCart — E-Commerce Invoice', 50, headerY + 48);
+  } else {
+    // Fallback if logo file is missing - keep old text
+    doc.fontSize(20).fillColor('#1e293b').text('ApnaCart', { continued: false });
+    doc.fontSize(9).fillColor('#64748b').text('ApnaCart — E-Commerce Invoice');
+  }
+
+  // Invoice title on right, aligned with logo
+  doc.fontSize(16).fillColor('#1e293b').text('INVOICE', 50, headerY, { align: 'right' });
   doc.fontSize(10).fillColor('#64748b');
   doc.text(`Invoice No: INV-${orderNumber}`, { align: 'right' });
   doc.text(`Order Date: ${new Date(order.createdAt).toLocaleDateString()}`, { align: 'right' });
   doc.text(`Order Status: ${order.orderStatus}`, { align: 'right' });
 
-  doc.moveDown(1);
+  doc.moveDown(1.2);
+  // Move cursor below whichever is taller - logo or invoice info
+  doc.y = Math.max(doc.y, headerY + 70);
+
+  doc.moveDown(0.5);
   doc
     .moveTo(50, doc.y)
     .lineTo(545, doc.y)
@@ -113,7 +128,7 @@ export const streamInvoicePdf = (order, res) => {
     .fontSize(8)
     .fillColor('#94a3b8')
     .text(
-      'This is a system-generated invoice for an MCA academic project and does not represent a real commercial transaction.',
+      'This is a system-generated invoice for ApnaCart, represent a real commercial transaction.',
       50,
       750,
       { width: 495, align: 'center' }
@@ -121,3 +136,4 @@ export const streamInvoicePdf = (order, res) => {
 
   doc.end();
 };
+

@@ -4,20 +4,22 @@ import { ShieldCheck, Truck, Headphones, Award } from 'lucide-react';
 
 const AboutUs = () => (
   <div className="static-page">
-    <h1>About ShopCom</h1>
+    <h1>About ApnaCart</h1>
     <p className="static-page-lead">
-      ShopCom is an academic e-commerce project built to demonstrate a complete, production-style
-      shopping experience using the MERN stack (MongoDB, Express.js, React.js and Node.js).
+      ApnaCart — Apni Pasand. Apni Shoping. 
+      ApnaCart is your everyday online shopping destination. 
+      We bring you quality products, honest prices, and a shopping experience that is simple, fast, and made for India. 
+      From daily essentials to the latest trends, we make it easy to find what you love, order in a few taps, 
+      and get it delivered to your doorstep — without any hassle.
     </p>
 
     <section className="section">
       <h2>Our Story</h2>
       <p>
-        This store was developed as part of an MCA (Master of Computer Applications) final-year
-        project titled <em>&ldquo;Design and Development of an E-Commerce Website Using the MERN
-        Stack.&rdquo;</em> It brings together a React + Vite frontend, a Node.js/Express REST API,
-        and a MongoDB database to show how browsing, carts, checkout, payments and admin management
-        work together in a real full-stack application.
+        ApnaCart started with one simple idea: online shopping should feel like shopping from your own neighbourhood store — 
+         <em>&ldquo;familiar, trustworthy, and personal.We saw that big platforms had become complicated, slow, and impersonal.&rdquo;</em>  
+         So we built ApnaCart to be different. A store where you can browse easily, pay securely, and always know where your order is. 
+        Today, ApnaCart is growing every day with happy customers who trust us for quality, transparency, and great service.
       </p>
     </section>
 
