@@ -1,4 +1,4 @@
-# Testing Checklist — ShopCom
+# Testing Checklist — ApnaCart
 
 Fill in **Actual Result** and **Pass/Fail** yourself after running each test against your own running
 instance (backend on `http://localhost:5000`, frontend on `http://localhost:5173`). Do not mark a
