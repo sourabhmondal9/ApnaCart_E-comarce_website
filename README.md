@@ -1,4 +1,4 @@
-# ShopCom — MERN Stack E-Commerce Website
+# ApnaCart — MERN Stack E-Commerce Website
 ### MCA College Project: "Design and Development of an E-Commerce Website Using the MERN Stack"
 
 A full-stack e-commerce web application built with **MongoDB, Express.js, React.js and Node.js**.
