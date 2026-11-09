@@ -89,7 +89,7 @@ export const streamInvoicePdf = (order, res) => {
       doc.rect(50, rowY, 495, rowHeight).fill('#f8fafc');
       doc.fillColor('#334155');
     }
-    doc.text(item.name, col.name + 8, rowY + 6, { width: 260 });
+    doc.text(item.name, col.name + 8, rowY + 6, { width: 360 });
     doc.text(String(item.quantity), col.qty, rowY + 6);
     doc.text(formatINR(item.price), col.price, rowY + 6);
     doc.text(formatINR(item.price * item.quantity), col.total, rowY + 6);
