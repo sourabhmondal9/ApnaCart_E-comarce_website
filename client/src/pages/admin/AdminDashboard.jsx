@@ -70,7 +70,7 @@ const AdminDashboard = () => {
             {status}: {count}
           </span>
         ))}
-        {Object.keys(stats.ordersByStatus || {}).length === 0 && <p>No orders yet.</p>}
+        {Object.keys(stats.ordersByStatus || {}).length === 0 && <p>No order yet.</p>}
       </div>
     </div>
   );

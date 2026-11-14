@@ -202,22 +202,22 @@ const Home = () => {
         <div className="trust-item">
           <span className="trust-icon">🛡️</span>
           <div>
-            <strong>Secure Payment</strong>
+            <strong>Secure Payments</strong>
             <span>100% safe & protected</span>
           </div>
         </div>
         <div className="trust-item">
           <span className="trust-icon">↩️</span>
           <div>
-            <strong>Easy Returns</strong>
-            <span>7-day hassle-free returns</span>
+            <strong>Easy Return</strong>
+            <span>7-day hassle-free return</span>
           </div>
         </div>
         <div className="trust-item">
           <span className="trust-icon">💬</span>
           <div>
             <strong>24/7 Support</strong>
-            <span>We are here to help</span>
+            <span>We are here to help you</span>
           </div>
         </div>
       </section>

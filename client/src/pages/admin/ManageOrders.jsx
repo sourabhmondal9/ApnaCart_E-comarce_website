@@ -73,7 +73,7 @@ const ManageOrders = () => {
       </div>
 
       {orders.length === 0 ? (
-        <p className="empty-state">No orders found.</p>
+        <p className="empty-state">No order found.</p>
       ) : (
         <div className="table-wrapper">
           <table className="admin-table">

@@ -5,7 +5,7 @@ const ProductGrid = ({ products, onAddToCart, addingId, onWishlistMessage }) => 
   if (!products || products.length === 0) {
     return (
       <div className="empty-state">
-        <p>No products found.</p>
+        <p>No product found.</p>
       </div>
     );
   }

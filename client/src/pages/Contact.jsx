@@ -103,7 +103,7 @@ const Contact = () => {
         <div className="contact-info">
           <h2>We are here to help you.</h2>
           <p className="contact-subtext">
-            Have a question about your order, delivery, return or payment? Our support team is here to help.
+            Have a question about your order, delivery, return or payment? Our support team is here to help you.
           </p>
 
           <div className="contact-info-row">
@@ -143,23 +143,6 @@ const Contact = () => {
             We aim to respond within 24 hours on working days. Your message is handled by our support team.
           </p>
         </div>
-
-        {/* <div className="contact-info">
-          <h2>Other Ways to Reach Us</h2>
-          <p className="contact-info-row">
-            <Mail size={18} aria-hidden="true" /> support@apnacart.example
-          </p>
-          <p className="contact-info-row">
-            <Phone size={18} aria-hidden="true" /> +91 79081 61009
-          </p>
-          <p className="contact-info-row">
-            <MapPin size={18} aria-hidden="true" /> MCA Department, College Campus, India
-          </p>
-          <p className="field-note">
-            This is a demo contact form for an academic project — messages are stored in the
-            project&apos;s own database and reviewed by an administrator, not sent to a live inbox.
-          </p>
-        </div> */}
       </div>
     </div>
   );
