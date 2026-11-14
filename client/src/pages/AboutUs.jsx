@@ -5,6 +5,7 @@ import { ShieldCheck, Truck, Headphones, Award } from 'lucide-react';
 const AboutUs = () => (
   <div className="static-page">
     <h1>About ApnaCart</h1>
+    <p className="static-page-lead static-page-tagline">Apni Pasand. Apni Shopping.</p>
     <p className="static-page-lead">
       ApnaCart — Apni Pasand. Apni Shoping. 
       ApnaCart is your everyday online shopping destination. 

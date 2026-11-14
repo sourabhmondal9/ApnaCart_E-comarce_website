@@ -43,6 +43,13 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Category is required'],
     },
     isActive: { type: Boolean, default: true },
+
+    // Denormalized rating summary, recalculated from the Review
+    // collection every time a review is created, edited or deleted
+    // (see reviewController.js). Stored here so product listings can
+    // show star ratings without a separate aggregation query per card.
+    ratingsAverage: { type: Number, default: 0, min: 0, max: 5 },
+    ratingsCount: { type: Number, default: 0, min: 0 },
   },
   { timestamps: true }
 );

@@ -92,7 +92,15 @@ const Products = () => {
       {error && <ErrorMessage message={error} onRetry={load} />}
       {!loading && !error && (
         <>
-          <ProductGrid products={products} onAddToCart={handleAddToCart} addingId={addingId} />
+          <ProductGrid
+            products={products}
+            onAddToCart={handleAddToCart}
+            addingId={addingId}
+            onWishlistMessage={(msg) => {
+              setToast(msg);
+              setTimeout(() => setToast(''), 2500);
+            }}
+          />
           {pagination.totalPages > 1 && (
             <div className="pagination">
               <button

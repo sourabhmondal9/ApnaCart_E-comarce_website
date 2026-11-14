@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Package, LogOut, LayoutDashboard, Menu, X } from 'lucide-react';
+import { ShoppingCart, Package, Heart, User, LogOut, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
+import { useWishlist } from '../context/WishlistContext.jsx';
 import SearchBar from './SearchBar.jsx';
-import logo1  from '/src/assets/logoNav.webp'
+import NotificationBell from './NotificationBell.jsx';
+import logo1 from '/src/assets/logoNav.webp'
+
+
+
+
 
 const Navbar = () => {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { cart } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -26,7 +33,7 @@ const Navbar = () => {
     <header className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo">
-          <img src={logo1} alt="apnaCartLogo" className="logo"/>
+          <img src={logo1} alt="apnaCartLogo" className="logo" />
         </Link>
 
         <div className="navbar-search-desktop">
@@ -60,10 +67,19 @@ const Navbar = () => {
                 <Package size={18} aria-hidden="true" />
                 My Orders
               </Link>
+
+              <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="navbar-icon-link">
+                <Heart size={20} aria-hidden="true" />
+                {wishlistCount > 0 && <span className="cart-badge-wish">{wishlistCount}</span>}
+              </Link>
+
+              <NotificationBell />
+
               <Link to="/profile" onClick={() => setMenuOpen(false)} className="navbar-icon-link">
                 <User size={18} aria-hidden="true" />
                 {user?.name?.split(' ')[0] || 'Profile'}
               </Link>
+
               <button type="button" className="navbar-icon-link navbar-logout" onClick={handleLogout}>
                 <LogOut size={18} aria-hidden="true" />
                 Logout
@@ -89,4 +105,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

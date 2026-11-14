@@ -1,0 +1,27 @@
+# Render "Blueprint" — lets you deploy the backend with one click via
+# Render's dashboard ("New +" -> "Blueprint", pointing at this repo).
+# You still need to fill in the secret environment variables yourself
+# in Render's dashboard after the service is created (see README.md).
+services:
+  - type: web
+    name: mca-ecommerce-api
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false # set manually in Render dashboard — do not commit secrets
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CLIENT_URL
+        sync: false # set to your deployed Netlify URL, e.g. https://your-site.netlify.app
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false

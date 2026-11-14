@@ -1,7 +1,7 @@
 import React from 'react';
 import ProductCard from './ProductCard.jsx';
 
-const ProductGrid = ({ products, onAddToCart, addingId }) => {
+const ProductGrid = ({ products, onAddToCart, addingId, onWishlistMessage }) => {
   if (!products || products.length === 0) {
     return (
       <div className="empty-state">
@@ -18,6 +18,7 @@ const ProductGrid = ({ products, onAddToCart, addingId }) => {
           product={product}
           onAddToCart={onAddToCart}
           adding={addingId === product._id}
+          onWishlistMessage={onWishlistMessage}
         />
       ))}
     </div>

@@ -56,7 +56,7 @@ const Checkout = () => {
         key: keyId,
         amount,
         currency,
-        name: 'ShopCom',
+        name: 'ApnaMart',
         description: 'Order payment',
         order_id: razorpayOrderId,
         prefill: { name: user?.name, email: user?.email },

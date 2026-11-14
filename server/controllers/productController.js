@@ -23,7 +23,11 @@ export const getProducts = asyncHandler(async (req, res) => {
 
   if (category && typeof category === 'string') {
     validateObjectId(category, 'category id');
-    query.category = category;
+    // If the selected category has subcategories, include products filed
+    // directly under those subcategories too — selecting a parent like
+    // "Clothing" should also surface products under "Clothing > Men".
+    const subcategoryIds = await Category.find({ parentCategory: category }).distinct('_id');
+    query.category = subcategoryIds.length > 0 ? { $in: [category, ...subcategoryIds] } : category;
   }
 
   let sortOption = { createdAt: -1 };
@@ -36,7 +40,7 @@ export const getProducts = asyncHandler(async (req, res) => {
   const skip = (pageNum - 1) * limitNum;
 
   const [products, total] = await Promise.all([
-    Product.find(query).populate('category', 'name slug').sort(sortOption).skip(skip).limit(limitNum),
+    Product.find(query).populate({ path: 'category', select: 'name slug parentCategory', populate: { path: 'parentCategory', select: 'name slug' } }).sort(sortOption).skip(skip).limit(limitNum),
     Product.countDocuments(query),
   ]);
 
@@ -57,7 +61,7 @@ export const getProducts = asyncHandler(async (req, res) => {
 // @route GET /api/products/:id
 export const getProductById = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'product id');
-  const product = await Product.findById(req.params.id).populate('category', 'name slug');
+  const product = await Product.findById(req.params.id).populate({ path: 'category', select: 'name slug parentCategory', populate: { path: 'parentCategory', select: 'name slug' } });
 
   if (!product || (!product.isActive && (!req.user || req.user.role !== 'admin'))) {
     throw new ApiError(404, 'Product not found');
@@ -106,7 +110,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndUpdate(req.params.id, updates, {
     new: true,
     runValidators: true,
-  }).populate('category', 'name slug');
+  }).populate({ path: 'category', select: 'name slug parentCategory', populate: { path: 'parentCategory', select: 'name slug' } });
 
   if (!product) throw new ApiError(404, 'Product not found');
 

@@ -1,4 +1,5 @@
 # ApnaCart — MERN Stack E-Commerce Website
+### "Apni Pasand. Apni Shopping."
 ### MCA College Project: "Design and Development of an E-Commerce Website Using the MERN Stack"
 
 A full-stack e-commerce web application built with **MongoDB, Express.js, React.js and Node.js**.
@@ -82,6 +83,7 @@ MCA student presenting it at a viva, not just to work.
 ```bash
 cd server
 npm install
+cp .env.example .env
 ```
 
 Edit `server/.env`:
@@ -158,6 +160,7 @@ In a separate terminal:
 ```bash
 cd client
 npm install
+cp .env.example .env
 ```
 
 Edit `client/.env` if your API runs somewhere other than `http://localhost:5000/api`:
@@ -176,7 +179,9 @@ Open the printed URL (default `http://localhost:5173`).
 
 ## 6. Deploying Online
 
-Deploy both parts of ShopCom on Render: publish the React + Vite frontend as a **Static Site** and run the Express API as a **Web Service**. MongoDB Atlas provides the cloud database. Follow **`DEPLOYMENT.md`** for the Render configuration, environment variables, CORS setup, SPA rewrite, and deployment verification steps.
+For putting this live (e.g. to demo it beyond localhost), see **`DEPLOYMENT.md`** — it covers
+deploying the frontend to Netlify and the backend to Render, with exact settings and environment
+variables for both.
 
 ## 6a. Order Invoices (PDF)
 
@@ -201,6 +206,43 @@ Two informational pages beyond the original spec:
   curl with an admin token; there is no dedicated admin UI page for browsing them yet, since that
   wasn't requested. It would follow the same pattern as `client/src/pages/admin/ManageOrders.jsx`
   if you want to add one.
+
+---
+
+## 6c. Categories & Subcategories
+
+Categories now support one level of nesting (e.g. "Clothing" → "Men", "Women"). In
+`/admin/categories`, use **Add Category** for a top-level category, or the **+** icon on an
+existing top-level row to add a subcategory under it. A category that already has subcategories
+cannot itself become a subcategory (one level of nesting only, to keep the catalogue simple). On
+the storefront, filtering by a parent category (`/products?category=...`) automatically includes
+products filed under its subcategories too.
+
+## 6d. Wishlist & Reviews
+
+- **Wishlist**: click the heart icon on any product card or product details page (requires login).
+  View saved items at `/wishlist`. Backed by a `Wishlist` collection (one per user).
+- **Reviews**: on any product details page, logged-in customers can leave a 1–5 star rating and
+  comment. Submitting again *edits* your existing review rather than creating a duplicate (enforced
+  by a unique index on `{product, user}`). A review shows a **Verified Purchase** badge if that user
+  has a `Delivered` order containing the product — checked fresh against the `Order` collection at
+  review time, not trusted from the client. Each product's `ratingsAverage`/`ratingsCount` are
+  recalculated from its reviews every time one is added, edited, or deleted, so product cards can
+  show a star rating without a separate query per card.
+
+## 6e. Notification System
+
+Two layers, both real (nothing simulated):
+- **In-app notifications**: a bell icon in the navbar polls `GET /api/notifications` every 30
+  seconds and shows unread count, recent notifications, and a full history at `/notifications`.
+  Triggered automatically when an order is placed (COD or after Razorpay verification) and whenever
+  an admin changes an order's status — see `notify()` in `server/utils/notify.js`, called from
+  `orderController.js`'s shared `commitOrder()` and `updateOrderStatus()`.
+- **Email notifications (optional)**: the same `notify()` call also sends a plain-text email via
+  `nodemailer` if `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS` are set in `server/.env` (see Section 4 for
+  Gmail App Password or Ethereal test-inbox setup). If left unset, email is silently skipped — a
+  warning is logged once, and the in-app notification still fires normally. Email sending is
+  fire-and-forget: a slow or failing mail server can never delay or fail an order.
 
 ---
 

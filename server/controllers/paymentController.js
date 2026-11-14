@@ -93,7 +93,7 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
   }
 
   const { order, usedTransaction } = await commitOrder({
-    userId: req.user._id,
+    user: req.user,
     cart,
     orderItems,
     totalAmount,

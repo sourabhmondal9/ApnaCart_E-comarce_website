@@ -4,8 +4,10 @@ import ApiError from '../utils/ApiError.js';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
 import Order, { ORDER_STATUSES } from '../models/Order.js';
+import User from '../models/User.js';
 import { validateShippingAddress } from '../validators/orderValidators.js';
 import { validateObjectId } from '../validators/productValidators.js';
+import { notify } from '../utils/notify.js';
 
 // Allowed forward transitions. 'Cancelled' is reachable from any
 // non-terminal state; terminal states cannot be changed further.
@@ -70,8 +72,13 @@ const buildOrderItemsFromCart = async (userId) => {
  * college dev setups) that still prevents overselling. Clears the cart
  * only after the order is successfully persisted. `extraFields` lets
  * callers attach payment-method-specific data (e.g. Razorpay IDs).
+ *
+ * `user` is the full authenticated user doc (not just an id) — needed so
+ * the post-creation notification (in-app + optional email) has a name
+ * and email to address, without an extra DB query.
  */
-const commitOrder = async ({ userId, cart, orderItems, totalAmount, shippingAddress, paymentMethod, paymentStatus, extraFields = {} }) => {
+const commitOrder = async ({ user, cart, orderItems, totalAmount, shippingAddress, paymentMethod, paymentStatus, extraFields = {} }) => {
+  const userId = user._id;
   let session = null;
   let useTransaction = true;
   let createdOrder = null;
@@ -165,6 +172,18 @@ const commitOrder = async ({ userId, cart, orderItems, totalAmount, shippingAddr
     }
   }
 
+  // Notify the customer their order was placed — in-app always, email if
+  // SMTP is configured. Never allowed to fail the order itself: a problem
+  // sending the notification is logged, not thrown, from inside notify().
+  const orderNumber = createdOrder._id.toString().slice(-8).toUpperCase();
+  await notify({
+    user,
+    type: 'OrderPlaced',
+    title: `Order #${orderNumber} placed successfully`,
+    message: `Thanks for your order! Order #${orderNumber} for a total of Rs. ${totalAmount.toFixed(2)} has been placed and is now "Placed". You'll be notified as its status updates.`,
+    orderId: createdOrder._id,
+  }).catch((err) => console.error('Order-placed notification failed:', err.message));
+
   return { order: createdOrder, usedTransaction: useTransaction };
 };
 
@@ -176,7 +195,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   const { cart, orderItems, totalAmount } = await buildOrderItemsFromCart(req.user._id);
 
   const { order, usedTransaction } = await commitOrder({
-    userId: req.user._id,
+    user: req.user,
     cart,
     orderItems,
     totalAmount,
@@ -275,6 +294,20 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
   order.orderStatus = status;
   await order.save();
+
+  // Notify the customer of the status change — fetch just enough of the
+  // user doc (name/email) to address the notification/email.
+  const customer = await User.findById(order.user).select('name email');
+  if (customer) {
+    const orderNumber = order._id.toString().slice(-8).toUpperCase();
+    await notify({
+      user: customer,
+      type: 'OrderStatusUpdated',
+      title: `Order #${orderNumber} is now "${status}"`,
+      message: `Your order #${orderNumber} status has been updated to "${status}".`,
+      orderId: order._id,
+    }).catch((err) => console.error('Order-status notification failed:', err.message));
+  }
 
   res.status(200).json({ success: true, message: `Order marked as ${status}`, data: { order } });
 });

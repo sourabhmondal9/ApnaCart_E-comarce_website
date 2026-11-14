@@ -96,6 +96,50 @@ Legend: 🖥️ = browser test, 📮 = Postman/curl test.
 | STATIC-09 🖥️ | Admin can delete a message | Click delete, confirm | Message removed from the list (and from the DB) | | |
 | STATIC-10 📮 | Non-admin cannot resolve/delete messages | `PATCH /api/contact/:id/resolve` or `DELETE /api/contact/:id` with a customer token | `403 Forbidden` on both | | |
 
+## C4. Categories & Subcategories
+
+| ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
+|----|---|---|---|---|---|
+| CAT-01 🖥️ | Create a subcategory | In `/admin/categories`, click + on a top-level category, add "Men" under "Clothing" | "Men" appears indented under "Clothing" | | |
+| CAT-02 📮 | Reject nesting a subcategory under a subcategory | `POST /api/categories` with `parentCategory` set to an existing subcategory's id | `400 Bad Request` | | |
+| CAT-03 🖥️ | Filtering by parent includes subcategory products | Add a product under "Clothing → Men", filter `/products` by "Clothing" | The Men's product appears in results | | |
+| CAT-04 📮 | Reject making a category with children into a subcategory | `PUT /api/categories/:id` setting `parentCategory` on a category that already has its own subcategories | `400 Bad Request` | | |
+| CAT-05 🖥️ | Deleting a category with subcategories deactivates it | Delete a top-level category that has subcategories | Category deactivated, not deleted; subcategories untouched | | |
+
+## C5. Wishlist
+
+| ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
+|----|---|---|---|---|---|
+| WISH-01 🖥️ | Add to wishlist | Click the heart icon on a product card (logged in) | Heart fills in, product appears on `/wishlist` | | |
+| WISH-02 🖥️ | Remove from wishlist | Click the filled heart again, or remove from `/wishlist` page | Product disappears from wishlist | | |
+| WISH-03 🖥️ | Wishlist requires login | Click the heart icon while logged out | Prompted to log in; nothing is saved | | |
+| WISH-04 📮 | Wishlist is per-user | Log in as User A, add a product; log in as User B | User B's `GET /api/wishlist` does not show User A's saved item | | |
+| WISH-05 🖥️ | Wishlist survives a deleted product gracefully | Wishlist a product, have an admin delete it (hard delete, no orders reference it) | Wishlist page simply omits the deleted product, no crash | | |
+
+## C6. Reviews & Ratings
+
+| ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
+|----|---|---|---|---|---|
+| REV-01 🖥️ | Submit a review | On a product details page, submit a rating + comment | Review appears in the list; product's star rating updates | | |
+| REV-02 🖥️ | Edit own review | Submit a review again for the same product with a different rating | Existing review updates in place (no duplicate) | | |
+| REV-03 📮 | Duplicate review prevented at DB level | Attempt to directly insert two reviews for the same user+product | Second insert fails the unique index | | |
+| REV-04 🖥️ | Verified Purchase badge | Review a product you have a `Delivered` order for, vs. one you don't | Badge shown only for the delivered-purchase product | | |
+| REV-05 🖥️ | Delete own review | Click delete on your own review | Review removed, rating average recalculates | | |
+| REV-06 📮 | Cannot delete another user's review | `DELETE /api/products/:id/reviews/:reviewId` for someone else's review, as a non-admin | `403 Forbidden` | | |
+| REV-07 📮 | Reject invalid rating | Submit a review with `rating: 6` or `rating: 0` | `400 Bad Request` | | |
+
+## C7. Notifications
+
+| ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
+|----|---|---|---|---|---|
+| NOTIF-01 🖥️ | Order-placed notification | Place an order (COD or online) | A notification appears in the bell within ~30s, linking to the order | | |
+| NOTIF-02 🖥️ | Order-status notification | As admin, change an order's status | The customer's bell shows a new "status updated" notification | | |
+| NOTIF-03 🖥️ | Mark as read | Click a notification | It's marked read; unread count decreases | | |
+| NOTIF-04 🖥️ | Mark all as read | Click "Mark all read" | All notifications marked read, badge disappears | | |
+| NOTIF-05 📮 | Notifications are per-user | Log in as User A and User B separately | Each only sees their own notifications | | |
+| NOTIF-06 🖥️ | Email notification (optional) | Configure SMTP in `.env`, place an order | An email arrives at the test inbox with order details | | |
+| NOTIF-07 🖥️ | Missing SMTP config doesn't break orders | Leave SMTP vars unset, place an order | Order still succeeds; in-app notification still appears; server logs one warning | | |
+
 ## E. Business Logic / Security Edge Cases
 
 | ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
@@ -133,21 +177,6 @@ Or import the routes above into Postman as a collection, setting a collection va
 you update after login.
 
 ---
-
-## F. Render Deployment Smoke Tests
-
-Run these additional checks after deploying the frontend and backend to Render. Replace the example URLs
-with the actual URLs shown in your Render dashboard.
-
-| ID | Description | Input / Action | Expected Result | Actual Result | Pass/Fail |
-|---|---|---|---|---|---|
-| DEPLOY-01 | Backend health endpoint | Open `https://<your-backend>.onrender.com/api/health` | API reports that it is running | | |
-| DEPLOY-02 | Frontend loads | Open the Render Static Site URL | ShopCom homepage loads without a blank screen | | |
-| DEPLOY-03 | Frontend can reach API | Open `/products` and inspect DevTools → Network | API requests use the deployed backend URL and products load | | |
-| DEPLOY-04 | CORS configuration | Register or log in from the deployed frontend | Requests are not blocked by CORS | | |
-| DEPLOY-05 | Client-side route refresh | Open `/products` directly and refresh | React page loads instead of a Render 404 | | |
-| DEPLOY-06 | Production environment secrets | Review Render environment settings | Secrets exist only in the backend service and are not committed to Git | | |
-| DEPLOY-07 | End-to-end order | Register/log in, add a product, and place a COD order | Order is created and appears in order history | | |
 
 ## Reporting
 

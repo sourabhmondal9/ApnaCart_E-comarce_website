@@ -20,7 +20,8 @@ const ProductForm = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const cats = await fetchCategories({ includeInactive: 'true' });
+        // flat=true: a single list (not the nested tree) is what a <select> needs
+        const cats = await fetchCategories({ includeInactive: 'true', flat: 'true' });
         setCategories(cats);
 
         if (isEdit) {
@@ -104,11 +105,20 @@ const ProductForm = () => {
         <label htmlFor="category">Category</label>
         <select id="category" name="category" value={form.category} onChange={handleChange} required>
           <option value="">Select a category</option>
-          {categories.map((c) => (
-            <option key={c._id} value={c._id}>
-              {c.name}
-            </option>
-          ))}
+          {categories
+            .filter((c) => !c.parentCategory)
+            .map((parent) => (
+              <React.Fragment key={parent._id}>
+                <option value={parent._id}>{parent.name}</option>
+                {categories
+                  .filter((c) => c.parentCategory === parent._id)
+                  .map((sub) => (
+                    <option key={sub._id} value={sub._id}>
+                      &nbsp;&nbsp;&nbsp;&nbsp;↳ {sub.name}
+                    </option>
+                  ))}
+              </React.Fragment>
+            ))}
         </select>
 
         <label htmlFor="imageUrl">Image URL</label>

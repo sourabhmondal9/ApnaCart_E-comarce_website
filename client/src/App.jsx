@@ -16,6 +16,8 @@ import Checkout from './pages/Checkout.jsx';
 import MyOrders from './pages/MyOrders.jsx';
 import OrderDetails from './pages/OrderDetails.jsx';
 import Profile from './pages/Profile.jsx';
+import Wishlist from './pages/Wishlist.jsx';
+import Notifications from './pages/Notifications.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import Contact from './pages/Contact.jsx';
 import NotFound from './pages/NotFound.jsx';
@@ -47,6 +49,8 @@ function App() {
         <Route path="/my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
         <Route path="/my-orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

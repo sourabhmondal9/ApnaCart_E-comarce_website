@@ -1,43 +1,17 @@
 import PDFDocument from 'pdfkit';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ------------------------------------------------------
-// Logo
-// ------------------------------------------------------
-const LOGO_PATH = path.join(__dirname, '../assets/logoNav.webp');
-
-// ------------------------------------------------------
-// Currency formatter
-// ------------------------------------------------------
 const formatINR = (amount) => {
   return `Rs. ${Number(amount || 0).toFixed(2)}`;
 };
 
-// ------------------------------------------------------
-// Invoice PDF Generator
-// ------------------------------------------------------
 export const streamInvoicePdf = (order, res) => {
   const doc = new PDFDocument({
     size: 'A4',
     margin: 50,
-    bufferPages: true,
   });
 
-  // ----------------------------------------------------
-  // Invoice Number
-  // ----------------------------------------------------
-  const orderNumber = order?._id
-    ? order._id.toString().slice(-8).toUpperCase()
-    : 'UNKNOWN';
+  const orderNumber = order._id.toString().slice(-8).toUpperCase();
 
-  // ----------------------------------------------------
-  // Response Headers
-  // ----------------------------------------------------
   res.setHeader('Content-Type', 'application/pdf');
 
   res.setHeader(
@@ -45,481 +19,523 @@ export const streamInvoicePdf = (order, res) => {
     `attachment; filename="invoice-${orderNumber}.pdf"`
   );
 
-  // Pipe PDF directly to response
   doc.pipe(res);
 
-  // ====================================================
-  // HEADER
-  // ====================================================
+  // ============================================================
+  // HEADER - APNACART NAME ONLY
+  // ============================================================
 
-  const headerY = doc.y;
+  const headerY = 45;
 
-  // ----------------------------------------------------
-  // Logo
-  // ----------------------------------------------------
-  if (fs.existsSync(LOGO_PATH)) {
-    doc.image(LOGO_PATH, 50, headerY, {
-      width: 140,
-    });
-
-    doc
-      .font('Helvetica')
-      .fontSize(9)
-      .fillColor('#64748b')
-      .text(
-        'ApnaCart — E-Commerce Invoice',
-        50,
-        headerY + 48,
-        {
-          width: 200,
-        }
-      );
-  } else {
-    // Fallback if logo doesn't exist
-    doc
-      .font('Helvetica-Bold')
-      .fontSize(20)
-      .fillColor('#1e293b')
-      .text('ApnaCart', 50, headerY);
-
-    doc
-      .font('Helvetica')
-      .fontSize(9)
-      .fillColor('#64748b')
-      .text(
-        'ApnaCart — E-Commerce Invoice',
-        50,
-        headerY + 25
-      );
-  }
-
-  // ----------------------------------------------------
-  // Invoice Information - Right Side
-  // ----------------------------------------------------
   doc
-    .font('Helvetica-Bold')
-    .fontSize(16)
     .fillColor('#1e293b')
-    .text('INVOICE', 350, headerY, {
-      width: 195,
-      align: 'right',
-    });
-
-  doc
-    .font('Helvetica')
-    .fontSize(10)
-    .fillColor('#64748b')
+    .font('Helvetica-Bold')
+    .fontSize(22)
     .text(
-      `Invoice No: INV-${orderNumber}`,
-      350,
-      headerY + 24,
-      {
-        width: 195,
-        align: 'right',
-      }
+      'ApnaCart',
+      50,
+      headerY
     );
 
+  doc
+    .fillColor('#64748b')
+    .font('Helvetica-Oblique')
+    .fontSize(9)
+    .text(
+      'Apni Pasand. Apni Shopping.',
+      50,
+      headerY + 28
+    );
+
+  doc.font('Helvetica');
+
+  doc.x = 50;
+  doc.y = headerY + 55;
+
+  // ============================================================
+  // INVOICE INFORMATION
+  // ============================================================
+
+  doc
+    .fontSize(16)
+    .fillColor('#1e293b')
+    .font('Helvetica-Bold')
+    .text('INVOICE', {
+      align: 'right',
+    });
+
+  doc.font('Helvetica');
+
+  doc
+    .fontSize(10)
+    .fillColor('#64748b')
+    .text(`Invoice No: INV-${orderNumber}`, {
+      align: 'right',
+    });
+
   doc.text(
-    `Order Date: ${
-      order?.createdAt
-        ? new Date(order.createdAt).toLocaleDateString('en-IN')
-        : 'N/A'
-    }`,
-    350,
-    headerY + 40,
+    `Order Date: ${new Date(
+      order.createdAt
+    ).toLocaleDateString('en-IN')}`,
     {
-      width: 195,
       align: 'right',
     }
   );
 
   doc.text(
-    `Order Status: ${order?.orderStatus || 'N/A'}`,
-    350,
-    headerY + 56,
+    `Order Status: ${order.orderStatus}`,
     {
-      width: 195,
       align: 'right',
     }
   );
 
-  // ----------------------------------------------------
-  // Move below header
-  // ----------------------------------------------------
-  doc.y = Math.max(doc.y, headerY + 80);
+  doc.moveDown(1);
 
-  // ----------------------------------------------------
-  // Divider
-  // ----------------------------------------------------
   doc
     .moveTo(50, doc.y)
     .lineTo(545, doc.y)
     .strokeColor('#e2e8f0')
     .stroke();
 
-  doc.moveDown(1);
+  doc.moveDown(0.8);
 
-  // ====================================================
-  // BILLING / SHIPPING DETAILS
-  // ====================================================
+  // ============================================================
+  // BILLING / SHIPPING
+  // ============================================================
 
   const colStartY = doc.y;
 
-  // ----------------------------------------------------
-  // Billed To
-  // ----------------------------------------------------
-  doc
-    .font('Helvetica-Bold')
-    .fontSize(11)
-    .fillColor('#1e293b')
-    .text('Billed To', 50, colStartY);
+  // ----------------------------
+  // BILLED TO
+  // ----------------------------
 
   doc
-    .font('Helvetica')
+    .fontSize(11)
+    .fillColor('#1e293b')
+    .font('Helvetica-Bold')
+    .text(
+      'Billed To',
+      50,
+      colStartY
+    );
+
+  doc
     .fontSize(10)
     .fillColor('#334155')
-    .text(order?.user?.name || 'N/A', 50);
+    .font('Helvetica');
 
-  doc.text(order?.user?.email || 'N/A', 50);
+  doc.text(
+    order.user?.name || 'N/A',
+    50
+  );
 
-  // ----------------------------------------------------
-  // Shipping Address
-  // ----------------------------------------------------
+  doc.text(
+    order.user?.email || 'N/A',
+    50
+  );
+
+  // ----------------------------
+  // SHIPPING ADDRESS
+  // ----------------------------
+
   doc
-    .font('Helvetica-Bold')
     .fontSize(11)
     .fillColor('#1e293b')
-    .text('Shipping Address', 300, colStartY);
+    .font('Helvetica-Bold')
+    .text(
+      'Shipping Address',
+      300,
+      colStartY
+    );
 
   doc
-    .font('Helvetica')
     .fontSize(10)
-    .fillColor('#334155');
+    .fillColor('#334155')
+    .font('Helvetica');
 
-  const shippingAddress = order?.shippingAddress || {};
+  const shippingAddress =
+    order.shippingAddress || {};
 
   doc.text(
     shippingAddress.street || 'N/A',
-    300,
-    colStartY + 16,
-    {
-      width: 245,
-    }
+    300
   );
 
   doc.text(
-    `${shippingAddress.city || 'N/A'}, ${
-      shippingAddress.state || 'N/A'
+    `${shippingAddress.city || ''}, ${
+      shippingAddress.state || ''
     }`,
-    300,
-    colStartY + 31,
-    {
-      width: 245,
-    }
+    300
   );
 
   doc.text(
-    shippingAddress.pincode || 'N/A',
-    300,
-    colStartY + 46,
-    {
-      width: 245,
-    }
+    shippingAddress.pincode || '',
+    300
   );
 
-  // Move below billing section
-  doc.y = Math.max(doc.y, colStartY + 70);
+  doc.moveDown(2);
 
-  // ====================================================
+  // ============================================================
   // ITEMS TABLE
-  // ====================================================
+  // ============================================================
+
+  const tableX = 50;
+  const tableWidth = 495;
+
+  const itemWidth = 255;
+  const qtyWidth = 55;
+  const priceWidth = 85;
+  const totalWidth = 100;
+
+  const itemX = tableX;
+
+  const qtyX =
+    itemX + itemWidth;
+
+  const priceX =
+    qtyX + qtyWidth;
+
+  const totalX =
+    priceX + priceWidth;
 
   const tableTop = doc.y;
 
-  // ----------------------------------------------------
-  // Column Positions
-  // ----------------------------------------------------
-  // Item column is now much wider.
-  const col = {
-    name: 50,
-    qty: 365,
-    price: 405,
-    total: 480,
-  };
+  const headerHeight = 25;
 
-  const tableWidth = 495;
+  // ============================================================
+  // TABLE HEADER
+  // ============================================================
 
-  // Width available for item names
-  const itemWidth = 305;
-
-  // ----------------------------------------------------
-  // Table Header
-  // ----------------------------------------------------
   doc
-    .rect(50, tableTop, tableWidth, 24)
+    .rect(
+      tableX,
+      tableTop,
+      tableWidth,
+      headerHeight
+    )
     .fill('#2563eb');
 
   doc
+    .fillColor('#ffffff')
     .font('Helvetica-Bold')
-    .fontSize(10)
-    .fillColor('#ffffff');
+    .fontSize(10);
 
-  // Item
   doc.text(
     'Item',
-    col.name + 8,
+    itemX + 8,
     tableTop + 7,
     {
-      width: itemWidth,
+      width: itemWidth - 16,
     }
   );
 
-  // Quantity
   doc.text(
     'Qty',
-    col.qty,
+    qtyX,
     tableTop + 7,
     {
-      width: 30,
+      width: qtyWidth,
       align: 'center',
     }
   );
 
-  // Unit Price
   doc.text(
     'Unit Price',
-    col.price - 5,
+    priceX,
     tableTop + 7,
     {
-      width: 65,
+      width: priceWidth,
       align: 'right',
     }
   );
 
-  // Line Total
   doc.text(
     'Line Total',
-    col.total - 5,
+    totalX,
     tableTop + 7,
     {
-      width: 65,
+      width: totalWidth - 8,
       align: 'right',
     }
   );
 
-  // ----------------------------------------------------
-  // Table Rows
-  // ----------------------------------------------------
-  let rowY = tableTop + 24;
+  // ============================================================
+  // TABLE ROWS
+  // ============================================================
 
-  const items = Array.isArray(order?.items)
-    ? order.items
-    : [];
+  let rowY =
+    tableTop + headerHeight;
 
   doc
     .font('Helvetica')
-    .fontSize(9.5)
-    .fillColor('#334155');
+    .fontSize(9.5);
 
-  items.forEach((item, index) => {
-    const itemName = item?.name || 'Unnamed Product';
+  order.items.forEach(
+    (item, index) => {
+      const itemName =
+        item.name || 'Product';
 
-    const quantity = Number(item?.quantity || 0);
+      // Calculate height based on item name
+      const itemNameHeight =
+        doc.heightOfString(
+          itemName,
+          {
+            width:
+              itemWidth - 16,
+            lineGap: 2,
+          }
+        );
 
-    const price = Number(item?.price || 0);
+      // Minimum row height = 25
+      const rowHeight =
+        Math.max(
+          25,
+          itemNameHeight + 10
+        );
 
-    const lineTotal = price * quantity;
-
-    // --------------------------------------------------
-    // Calculate height required for product name
-    // --------------------------------------------------
-    const itemTextHeight = doc.heightOfString(
-      itemName,
-      {
-        width: itemWidth - 15,
-        lineGap: 2,
+      // Alternate row background
+      if (index % 2 === 1) {
+        doc
+          .rect(
+            tableX,
+            rowY,
+            tableWidth,
+            rowHeight
+          )
+          .fill('#f8fafc');
       }
-    );
 
-    // Minimum row height = 28
-    // Long names automatically increase row height
-    const rowHeight = Math.max(
-      28,
-      itemTextHeight + 12
-    );
+      // ----------------------------
+      // ITEM NAME
+      // ----------------------------
 
-    // --------------------------------------------------
-    // Alternating background
-    // --------------------------------------------------
-    if (index % 2 === 1) {
       doc
-        .rect(
-          50,
-          rowY,
-          tableWidth,
-          rowHeight
+        .fillColor('#334155')
+        .font('Helvetica')
+        .fontSize(9.5)
+        .text(
+          itemName,
+          itemX + 8,
+          rowY + 5,
+          {
+            width:
+              itemWidth - 16,
+            lineGap: 2,
+          }
+        );
+
+      // ----------------------------
+      // QUANTITY
+      // ----------------------------
+
+      doc.text(
+        String(
+          item.quantity || 0
+        ),
+        qtyX,
+        rowY + 8,
+        {
+          width: qtyWidth,
+          align: 'center',
+        }
+      );
+
+      // ----------------------------
+      // UNIT PRICE
+      // ----------------------------
+
+      doc.text(
+        formatINR(item.price),
+        priceX,
+        rowY + 8,
+        {
+          width: priceWidth,
+          align: 'right',
+        }
+      );
+
+      // ----------------------------
+      // LINE TOTAL
+      // ----------------------------
+
+      doc.text(
+        formatINR(
+          Number(item.price || 0) *
+          Number(item.quantity || 0)
+        ),
+        totalX,
+        rowY + 8,
+        {
+          width:
+            totalWidth - 8,
+          align: 'right',
+        }
+      );
+
+      // Move to next row
+      rowY += rowHeight;
+
+      // Horizontal separator
+      doc
+        .moveTo(
+          tableX,
+          rowY
         )
-        .fill('#f8fafc');
+        .lineTo(
+          tableX + tableWidth,
+          rowY
+        )
+        .strokeColor(
+          '#e2e8f0'
+        )
+        .stroke();
     }
+  );
 
-    doc
-      .font('Helvetica')
-      .fontSize(9.5)
-      .fillColor('#334155');
+  // ============================================================
+  // TABLE BORDER
+  // ============================================================
 
-    // --------------------------------------------------
-    // Product Name
-    // --------------------------------------------------
-    doc.text(
-      itemName,
-      col.name + 8,
-      rowY + 7,
-      {
-        width: itemWidth - 15,
-        lineGap: 2,
-      }
-    );
-
-    // --------------------------------------------------
-    // Quantity
-    // --------------------------------------------------
-    doc.text(
-      String(quantity),
-      col.qty,
-      rowY + 7,
-      {
-        width: 30,
-        align: 'center',
-      }
-    );
-
-    // --------------------------------------------------
-    // Unit Price
-    // --------------------------------------------------
-    doc.text(
-      formatINR(price),
-      col.price - 5,
-      rowY + 7,
-      {
-        width: 65,
-        align: 'right',
-      }
-    );
-
-    // --------------------------------------------------
-    // Line Total
-    // --------------------------------------------------
-    doc.text(
-      formatINR(lineTotal),
-      col.total - 5,
-      rowY + 7,
-      {
-        width: 65,
-        align: 'right',
-      }
-    );
-
-    // Move to next row
-    rowY += rowHeight;
-  });
-
-  // ----------------------------------------------------
-  // Table Bottom Border
-  // ----------------------------------------------------
   doc
-    .moveTo(50, rowY)
-    .lineTo(545, rowY)
+    .rect(
+      tableX,
+      tableTop,
+      tableWidth,
+      rowY - tableTop
+    )
     .strokeColor('#e2e8f0')
     .stroke();
 
-  rowY += 14;
+  // Quantity separator
+  doc
+    .moveTo(
+      qtyX,
+      tableTop
+    )
+    .lineTo(
+      qtyX,
+      rowY
+    )
+    .strokeColor('#e2e8f0')
+    .stroke();
 
-  // ====================================================
-  // TOTAL
-  // ====================================================
+  // Price separator
+  doc
+    .moveTo(
+      priceX,
+      tableTop
+    )
+    .lineTo(
+      priceX,
+      rowY
+    )
+    .strokeColor('#e2e8f0')
+    .stroke();
+
+  // Total separator
+  doc
+    .moveTo(
+      totalX,
+      tableTop
+    )
+    .lineTo(
+      totalX,
+      rowY
+    )
+    .strokeColor('#e2e8f0')
+    .stroke();
+
+  // ============================================================
+  // TOTAL AMOUNT
+  // ============================================================
+
+  rowY += 15;
 
   doc
     .font('Helvetica-Bold')
     .fontSize(11)
-    .fillColor('#1e293b');
+    .fillColor('#1e293b')
+    .text(
+      'Total Amount',
+      priceX,
+      rowY,
+      {
+        width: priceWidth,
+        align: 'right',
+      }
+    );
 
-  doc.text(
-    'Total Amount',
-    col.price - 5,
-    rowY,
-    {
-      width: 70,
-      align: 'right',
-    }
-  );
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(11)
+    .fillColor('#1e293b')
+    .text(
+      formatINR(
+        order.totalAmount
+      ),
+      totalX,
+      rowY,
+      {
+        width:
+          totalWidth - 8,
+        align: 'right',
+      }
+    );
 
-  doc.text(
-    formatINR(order?.totalAmount),
-    col.total - 5,
-    rowY,
-    {
-      width: 65,
-      align: 'right',
-    }
-  );
+  // ============================================================
+  // PAYMENT INFORMATION
+  // ============================================================
 
   rowY += 32;
-
-  // ====================================================
-  // PAYMENT INFORMATION
-  // ====================================================
 
   doc
     .font('Helvetica')
     .fontSize(10)
     .fillColor('#64748b');
 
-  const paymentMethod =
-    order?.paymentMethod === 'Online'
-      ? 'Online (Razorpay)'
-      : 'Cash on Delivery';
-
   doc.text(
-    `Payment Method: ${paymentMethod}`,
+    `Payment Method: ${
+      order.paymentMethod === 'Online'
+        ? 'Online (Razorpay)'
+        : 'Cash on Delivery'
+    }`,
     50,
     rowY
   );
 
   doc.text(
     `Payment Status: ${
-      order?.paymentStatus || 'N/A'
+      order.paymentStatus ||
+      'Pending'
     }`,
     50,
-    rowY + 15
+    rowY + 14
   );
 
-  // ----------------------------------------------------
-  // Razorpay Payment ID
-  // ----------------------------------------------------
+  // Razorpay payment ID
   if (
-    order?.paymentMethod === 'Online' &&
-    order?.razorpayPaymentId
+    order.paymentMethod === 'Online' &&
+    order.razorpayPaymentId
   ) {
     doc.text(
-      `Razorpay Payment ID: ${order.razorpayPaymentId}`,
+      `Razorpay Payment ID: ${
+        order.razorpayPaymentId
+      }`,
       50,
-      rowY + 30
+      rowY + 28
     );
   }
 
-  // ====================================================
+  // ============================================================
   // FOOTER
-  // ====================================================
-
-  const footerText =
-    'This is a system-generated invoice for ApnaCart and represents a real commercial transaction.';
+  // ============================================================
 
   doc
     .font('Helvetica')
     .fontSize(8)
     .fillColor('#94a3b8')
     .text(
-      footerText,
+      'This is a system-generated invoice for ApnaCart and represents a real commercial transaction.',
       50,
       750,
       {
@@ -528,9 +544,9 @@ export const streamInvoicePdf = (order, res) => {
       }
     );
 
-  // ====================================================
+  // ============================================================
   // FINISH PDF
-  // ====================================================
+  // ============================================================
 
   doc.end();
 };
