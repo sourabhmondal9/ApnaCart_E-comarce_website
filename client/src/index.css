@@ -179,6 +179,7 @@ hr{border:none; border-top:1px solid var(--border)}
   display:flex; align-items:center; justify-content:center;
   border:2px solid #fff; white-space:nowrap; z-index:2;
 }
+.cart-badge-wish{ display: none;}
 .cart-badge{background:var(--primary)}
 .wishlist-badge{background:#e11d48}
 .cart-badge:empty,.wishlist-badge:empty{display:none}
