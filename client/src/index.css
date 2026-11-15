@@ -729,8 +729,4 @@ hr{border:none; border-top:1px solid var(--border)}
 /* ---- Print ---- */
 @media print{
   .navbar,.footer,.hero-arrow,.hero-dots,.wishlist-toggle,.notification-bell-wrapper,.btn{display:none!important}
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 552dd30ce75d4e185f12419e473ea256e9750b81
