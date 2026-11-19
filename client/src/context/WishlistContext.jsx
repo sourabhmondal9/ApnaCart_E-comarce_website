@@ -8,13 +8,6 @@ import { useAuth } from './AuthContext.jsx';
 
 const WishlistContext = createContext(null);
 
-/**
- * Tracks only the set of wishlisted product IDs (not full product data) —
- * this is what ProductCard/ProductDetails need to decide whether a heart
- * icon should render filled, without fetching full product documents on
- * every page that shows a product grid. The full Wishlist page fetches
- * complete product data separately via fetchWishlist().
- */
 export const WishlistProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [wishlistIds, setWishlistIds] = useState(new Set());

@@ -19,14 +19,12 @@ export const getWishlist = asyncHandler(async (req, res) => {
     populate: { path: 'category', select: 'name' },
   });
 
-  // Products that were deleted after being wishlisted leave a null entry
-  // when populated — filter those out rather than showing a broken card.
   const products = wishlist.products.filter(Boolean);
 
   res.status(200).json({ success: true, data: { products } });
 });
 
-// @route POST /api/wishlist/items — protected. body: { productId }
+// @route POST /api/wishlist/items
 export const addToWishlist = asyncHandler(async (req, res) => {
   const { productId } = req.body;
   validateObjectId(productId, 'product id');
@@ -44,7 +42,7 @@ export const addToWishlist = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Added to wishlist', data: { productIds: wishlist.products } });
 });
 
-// @route DELETE /api/wishlist/items/:productId — protected
+// @route DELETE /api/wishlist/items/:productId
 export const removeFromWishlist = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   validateObjectId(productId, 'product id');
@@ -56,9 +54,7 @@ export const removeFromWishlist = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Removed from wishlist', data: { productIds: wishlist.products } });
 });
 
-// @route GET /api/wishlist/ids — protected. Lightweight: just the product
-// ids, for the frontend to know which heart icons to fill in without
-// fetching full product data on every page.
+// @route GET /api/wishlist/ids — protected
 export const getWishlistIds = asyncHandler(async (req, res) => {
   const wishlist = await getOrCreateWishlist(req.user._id);
   res.status(200).json({ success: true, data: { productIds: wishlist.products } });

@@ -37,11 +37,10 @@ const Checkout = () => {
   };
 
   /**
-   * Opens Razorpay's Checkout widget. On success, sends the returned
+   * Opens Razorpay's On success, sends the returned
    * payment identifiers + signature to the backend for verification —
-   * the backend recomputes the HMAC signature itself and never trusts
-   * the "success" callback alone. Our own Order is only created after
-   * that server-side verification passes (see paymentController.js).
+   * the backend recomputes the HMAC signature itself and never trusts the "success" callback alone.
+   * Order is only created after that server-side verification passes.
    */
   const payOnline = async () => {
     const scriptLoaded = await loadRazorpayScript();
@@ -56,7 +55,7 @@ const Checkout = () => {
         key: keyId,
         amount,
         currency,
-        name: 'ApnaMart',
+        name: 'ApnaCart',
         description: 'Order payment',
         order_id: razorpayOrderId,
         prefill: { name: user?.name, email: user?.email },
@@ -77,7 +76,6 @@ const Checkout = () => {
           }
         },
         modal: {
-          // user closed the widget without completing payment
           ondismiss: () => reject(new Error('Payment was cancelled.')),
         },
       });
@@ -94,7 +92,7 @@ const Checkout = () => {
     e.preventDefault();
     setSubmitError('');
     if (!validate()) return;
-    if (submitting) return; // guard against double submission
+    if (submitting) return;
 
     setSubmitting(true);
     try {
@@ -194,7 +192,7 @@ const Checkout = () => {
             <strong>Total</strong>
             <strong>{formatCurrency(cart.subtotal)}</strong>
           </div>
-          <p className="cart-note">The final total is recalculated and confirmed by us.</p>
+          <p className="cart-note">The final total is recalculated and confirmed by the server.</p>
         </div>
       </div>
     </div>

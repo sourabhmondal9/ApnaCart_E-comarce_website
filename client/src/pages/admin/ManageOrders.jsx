@@ -7,8 +7,6 @@ import ErrorMessage from '../../components/ErrorMessage.jsx';
 
 const ALL_STATUSES = ['Placed', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
 
-// Mirrors the backend's allowed transitions so the dropdown only ever
-// offers a legal next status — but the backend re-validates regardless.
 const NEXT_STATUS = {
   Placed: ['Confirmed', 'Cancelled'],
   Confirmed: ['Shipped', 'Cancelled'],
@@ -37,10 +35,7 @@ const ManageOrders = () => {
     }
   };
 
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
+  useEffect(() => { load(); }, [statusFilter]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     if (!newStatus) return;
@@ -73,7 +68,7 @@ const ManageOrders = () => {
       </div>
 
       {orders.length === 0 ? (
-        <p className="empty-state">No order found.</p>
+        <p className="empty-state">No orders found.</p>
       ) : (
         <div className="table-wrapper">
           <table className="admin-table">

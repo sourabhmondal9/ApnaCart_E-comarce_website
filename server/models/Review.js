@@ -29,18 +29,13 @@ const reviewSchema = new mongoose.Schema(
       minlength: 5,
       maxlength: 1000,
     },
-    // True if, at the time of writing, this user had a Delivered order
-    // containing this product. Computed once when the review is
-    // created/updated (see reviewController.js) — a simple, honest
-    // "Verified Purchase" signal without re-querying orders on every read.
     isVerifiedPurchase: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
 // One review per user per product — resubmitting edits the existing one
-// instead of creating duplicates (enforced again in the controller via
-// upsert, this index is the DB-level guarantee).
+// instead of creating duplicates.
 reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 reviewSchema.index({ product: 1, createdAt: -1 });
 

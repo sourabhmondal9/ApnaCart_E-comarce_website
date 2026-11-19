@@ -1,7 +1,4 @@
-/**
- * Standard application error with an HTTP status code attached.
- * Thrown anywhere in controllers/middleware and caught by errorMiddleware.
- */
+
 class ApiError extends Error {
   constructor(statusCode, message, details = null) {
     super(message);

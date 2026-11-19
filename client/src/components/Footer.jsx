@@ -66,7 +66,6 @@ const Footer = () => {
             <li><Link to="/profile">Profile</Link></li>
             <li><Link to="/cart">Cart</Link></li>
             <li><Link to="/wishlist">Wishlist</Link></li>
-            {/* <li><Link to="/notifications">Notifications</Link></li> */}
           </ul>
         </div>
 
@@ -97,12 +96,6 @@ const Footer = () => {
           © {new Date().getFullYear()} ApnaCart. All rights reserved.
         </p>
         <div className="footer-bottom-links">
-          {/* <Link to="/about">Privacy</Link>
-          <span>•</span>
-          <Link to="/about">Terms</Link>
-          <span>•</span>
-          <Link to="/contact">Help</Link> 
-          <span>•</span> */}
           <span className="footer-made">Made with ❤️ in India</span>
         </div>
       </div>

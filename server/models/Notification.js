@@ -16,8 +16,6 @@ const notificationSchema = new mongoose.Schema(
     },
     title: { type: String, required: true, trim: true, maxlength: 150 },
     message: { type: String, required: true, trim: true, maxlength: 500 },
-    // Optional link back to the order this notification is about, so the
-    // frontend can make it clickable straight to the order details page.
     order: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Order',

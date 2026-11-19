@@ -62,9 +62,8 @@ const orderSchema = new mongoose.Schema(
     },
     stockRestored: { type: Boolean, default: false }, // guards against double stock restoration
 
-    // Populated only for paymentMethod: 'Online' (Razorpay). Never trust
-    // amounts from the client — these are identifiers only; the actual
-    // amount paid is verified against Razorpay's own order record.
+    // paymentMethod: 'Online' (Razorpay). Never trust
+    // amounts from the client — the actual amount paid is verified against Razorpay's own order record.
     razorpayOrderId: { type: String, default: undefined },
     razorpayPaymentId: { type: String, default: undefined },
     razorpaySignature: { type: String, default: undefined },

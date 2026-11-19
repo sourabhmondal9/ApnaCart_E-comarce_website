@@ -1,6 +1,5 @@
-# ApnaCart — MERN Stack E-Commerce Website
+# ApnaCart — E-Commerce Website
 ### "Apni Pasand. Apni Shopping."
-### MCA College Project: "Design and Development of an E-Commerce Website Using the MERN Stack"
 
 A full-stack e-commerce web application built with **MongoDB, Express.js, React.js and Node.js**.
 Customers can browse, search and filter products, manage a cart, check out with Cash on Delivery,
@@ -22,7 +21,7 @@ mca-ecommerce/
   server/     Node.js + Express + MongoDB REST API
   client/     React + Vite frontend
   README.md   This file
-  TESTING.md  Manual test checklist / Postman-style test cases
+  TESTING.md  test cases
 ```
 
 See inline comments in each file for explanations — this project is written to be readable by an
@@ -243,6 +242,28 @@ Two layers, both real (nothing simulated):
   Gmail App Password or Ethereal test-inbox setup). If left unset, email is silently skipped — a
   warning is logged once, and the in-app notification still fires normally. Email sending is
   fire-and-forget: a slow or failing mail server can never delay or fail an order.
+
+---
+
+## 6f. Password Visibility Toggle & Forgot/Reset Password
+
+- **Show/hide password**: every password field (login, register, reset password) has an eye-icon
+  toggle (`client/src/components/PasswordInput.jsx`) to reveal or mask what you've typed, with
+  proper `aria-label`s for screen readers.
+- **Forgot password**: `/forgot-password` lets a user request a reset link by email.
+  `POST /api/auth/forgot-password` always returns the same generic message regardless of whether
+  the email is registered — this is intentional, not a bug, so the endpoint can't be used to
+  discover which emails have accounts. If the email does belong to an active user, a random 32-byte
+  token is generated, only its SHA-256 hash is stored on the `User` document (the raw token is
+  never persisted anywhere, mirroring how passwords themselves are never stored in plain text), and
+  an email is sent via the same `sendEmail()` utility used for order notifications — which means
+  **SMTP must be configured in `server/.env`** (see Section 4) for this to actually deliver an
+  email; without it, the request still succeeds silently (logged as a skipped email) but no email
+  arrives, so you won't be able to complete a reset in that case.
+- **Reset password**: the emailed link points to `/reset-password/:token` on the frontend.
+  `PATCH /api/auth/reset-password/:token` hashes the token from the URL and compares it to the
+  stored hash, rejects it if expired (**30-minute window**) or not found, and on success hashes and
+  saves the new password, clears the reset token, and logs the user straight back in.
 
 ---
 

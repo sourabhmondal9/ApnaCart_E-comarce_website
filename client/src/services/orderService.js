@@ -25,12 +25,6 @@ export const updateOrderStatus = async (id, status) => {
   return data.data.order;
 };
 
-/**
- * Downloads the PDF invoice for an order and triggers a browser save.
- * Uses responseType: 'blob' since the response is binary, not JSON, and
- * relies on the request interceptor to still attach the auth token (a
- * plain <a href="..."> link can't send an Authorization header).
- */
 export const downloadInvoice = async (orderId) => {
   const response = await api.get(`/orders/${orderId}/invoice`, { responseType: 'blob' });
 

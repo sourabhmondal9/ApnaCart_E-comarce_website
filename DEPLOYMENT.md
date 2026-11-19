@@ -1,4 +1,4 @@
-# Deployment Guide — Netlify (frontend) + Render (backend)
+# Deployment Guide
 
 This splits the app the way each platform is actually built for: Netlify serves the static React
 build and handles client-side routing; Render runs the persistent Express + MongoDB server
@@ -96,6 +96,39 @@ only `.env.example` should be in the repo.
    | `VITE_API_URL` | `https://<your-render-url>/api` |
 5. Click **Deploy site**. Netlify gives you a URL like `https://random-name-123.netlify.app`
    (you can rename it under **Site configuration → Change site name**).
+
+---
+
+## Part 3b — Deploying the frontend to Render Static Site instead
+
+If you're using Render's **Static Site** product for the frontend rather than Netlify, the steps
+are the same (base directory `client`, build command `npm install && npm run build`, publish
+directory `dist`, same `VITE_API_URL` environment variable) — but the SPA routing fix is different:
+
+**Symptom:** the site works when you click around normally, but hitting Refresh on any non-home
+route (e.g. `/products/123`, `/login`, `/admin`) — or opening that URL directly — gives a "Not
+Found" page. This happens because React Router handles routing entirely in the browser; a static
+file server has no idea `/products/123` should serve `index.html`, so it 404s before React Router
+ever gets a chance to run.
+
+**Fix:** `client/public/_redirects` (already included in this project) contains:
+```
+/*    /index.html   200
+```
+Vite copies everything in `public/` into `dist/` verbatim during the build, so this file lands at
+`dist/_redirects` automatically — Render's Static Site hosting reads this Netlify-style redirects
+file natively, with no extra dashboard configuration needed. If you've already deployed without
+this file present in your repo, you only need to add it, commit, push, and let Render redeploy —
+the existing `vite.config.js` and build command need no changes.
+
+**If it's still 404ing after redeploying with `_redirects` in place:**
+- Confirm `dist/_redirects` actually exists after a local `npm run build` (`ls client/dist/_redirects`)
+  — if it's missing locally, check that the file is genuinely at `client/public/_redirects` (not
+  `client/src/...` or committed with a different name/extension like `_redirects.txt`).
+- As a manual fallback, Render's dashboard also supports this directly: Static Site → **Redirects/Rewrites**
+  tab → add a rule with Source `/*`, Destination `/index.html`, Action **Rewrite** (not Redirect).
+- Always test with a hard refresh / incognito window — a previously-cached 404 response can look
+  identical to a still-broken config.
 
 ---
 

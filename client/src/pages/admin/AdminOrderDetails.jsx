@@ -36,10 +36,7 @@ const AdminOrderDetails = () => {
     }
   };
 
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  useEffect(() => { load(); }, [id]);
 
   const handleStatusChange = async (newStatus) => {
     setUpdating(true);

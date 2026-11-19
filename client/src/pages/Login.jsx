@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { isValidEmail } from '../utils/validators.js';
+import PasswordInput from '../components/PasswordInput.jsx';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -47,16 +48,22 @@ const Login = () => {
         <input
           id="email"
           type="email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           aria-invalid={!!errors.email}
         />
         {errors.email && <p className="field-error">{errors.email}</p>}
 
-        <label htmlFor="password">Password</label>
-        <input
+        <div className="field-label-row">
+          <label htmlFor="password">Password</label>
+          <Link to="/forgot-password" className="inline-link">
+            Forgot password?
+          </Link>
+        </div>
+        <PasswordInput
           id="password"
-          type="password"
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           aria-invalid={!!errors.password}

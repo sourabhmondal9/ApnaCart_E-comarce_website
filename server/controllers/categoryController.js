@@ -4,13 +4,7 @@ import Category from '../models/Category.js';
 import Product from '../models/Product.js';
 import { validateObjectId } from '../validators/productValidators.js';
 
-/**
- * Arranges a flat category list into a tree: top-level categories with a
- * `subcategories` array attached. Only one level of nesting is supported
- * (a subcategory's own `subcategories` array is always empty) — enough
- * for a typical storefront catalogue without turning the admin UI into a
- * full recursive tree editor.
- */
+
 const buildCategoryTree = (categories) => {
   const byId = new Map(categories.map((c) => [c._id.toString(), { ...c.toObject(), subcategories: [] }]));
   const roots = [];
@@ -28,10 +22,7 @@ const buildCategoryTree = (categories) => {
   return roots;
 };
 
-// @route GET /api/categories — public, returns active categories as a tree
-// Admins can pass ?includeInactive=true to manage everything.
-// Pass ?flat=true to get the plain list instead of a nested tree (used by
-// admin forms that need every category in a single <select>).
+// @route GET /api/categories — public
 export const getCategories = asyncHandler(async (req, res) => {
   const wantsInactive = req.query.includeInactive === 'true' && req.user && req.user.role === 'admin';
   const query = wantsInactive ? {} : { isActive: true };
@@ -44,7 +35,7 @@ export const getCategories = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { categories: buildCategoryTree(categories) } });
 });
 
-// @route POST /api/categories — admin only
+// @route POST /api/categories
 export const createCategory = asyncHandler(async (req, res) => {
   const { name, description, parentCategory } = req.body;
   if (!name || !name.trim()) throw new ApiError(400, 'Category name is required');
@@ -70,7 +61,7 @@ export const createCategory = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, message: 'Category created', data: { category } });
 });
 
-// @route PUT /api/categories/:id — admin only
+// @route PUT /api/categories/:id
 export const updateCategory = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'category id');
 
@@ -83,8 +74,6 @@ export const updateCategory = asyncHandler(async (req, res) => {
     if (req.body[field] !== undefined) updates[field] = req.body[field];
   }
 
-  // Changing parentCategory is handled separately with extra validation,
-  // since it changes the shape of the tree.
   if (req.body.parentCategory !== undefined) {
     const newParentId = req.body.parentCategory;
 
@@ -115,8 +104,6 @@ export const updateCategory = asyncHandler(async (req, res) => {
 });
 
 // @route DELETE /api/categories/:id — admin only
-// If products reference this category, or it has subcategories, deactivate
-// instead of deleting so nothing is left dangling.
 export const deleteCategory = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'category id');
   const category = await Category.findById(req.params.id);

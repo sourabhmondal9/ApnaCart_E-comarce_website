@@ -20,7 +20,6 @@ const ProductForm = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        // flat=true: a single list (not the nested tree) is what a <select> needs
         const cats = await fetchCategories({ includeInactive: 'true', flat: 'true' });
         setCategories(cats);
 

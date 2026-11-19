@@ -1,6 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { register, login, getMe, updateMe } from '../controllers/authController.js';
+import { register, login, getMe, updateMe, forgotPassword, resetPassword } from '../controllers/authController.js';
 import protect from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -14,9 +14,19 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many attempts, please try again later' },
 });
 
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many reset requests, please try again later' },
+});
+
 router.post('/register', authLimiter, register);
 router.post('/login', authLimiter, login);
 router.get('/me', protect, getMe);
 router.patch('/me', protect, updateMe);
+router.post('/forgot-password', forgotPasswordLimiter, forgotPassword);
+router.patch('/reset-password/:token', authLimiter, resetPassword);
 
 export default router;

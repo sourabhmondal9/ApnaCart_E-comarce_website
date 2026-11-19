@@ -41,7 +41,6 @@ const heroSlides = [
   },
 ];
 
-// Simple emoji/icon map - you can replace with real icons later
 const categoryIcons = ['📚', '👕', '💻', '👟', '🏠', '💍', '🎧', '💄', '🧸', '⚽'];
 
 const Home = () => {
@@ -80,12 +79,12 @@ const Home = () => {
     load();
   }, []);
 
-  // Automatic hero slider
+  // hero slider
   useEffect(() => {
     if (isHeroHovered) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 4500);
+    }, 4000);
     return () => clearInterval(interval);
   }, [isHeroHovered]);
 

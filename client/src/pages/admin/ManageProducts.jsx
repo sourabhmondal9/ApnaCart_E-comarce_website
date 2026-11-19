@@ -56,7 +56,7 @@ const ManageProducts = () => {
       </div>
 
       {products.length === 0 ? (
-        <p className="empty-state">No product found.</p>
+        <p className="empty-state">No products yet. Add your first product or run the seed script.</p>
       ) : (
         <div className="table-wrapper">
           <table className="admin-table">

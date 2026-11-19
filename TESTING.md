@@ -20,6 +20,19 @@ Legend: 🖥️ = browser test, 📮 = Postman/curl test.
 | AUTH-06 📮 | Reject admin role injection at registration | None | `POST /api/auth/register` with `"role": "admin"` in body | User created with `role: "customer"` regardless | | |
 | AUTH-07 🖥️ | Passwords never returned | Logged in | Inspect `GET /api/auth/me` response in DevTools Network tab | No `password` field present anywhere | | |
 
+## A2. Password Visibility & Forgot/Reset Password
+
+| ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
+|----|---|---|---|---|---|
+| PWD-01 🖥️ | Show/hide password toggle | On login or register, type a password, click the eye icon | Password text becomes visible, icon changes; click again to re-mask | | |
+| PWD-02 🖥️ | Request password reset | On `/forgot-password`, submit a registered email | Generic success message shown; if SMTP is configured, an email with a reset link arrives | | |
+| PWD-03 🖥️ | Request reset for unregistered email | Submit an email with no account | Same generic success message (no indication the email doesn't exist) | | |
+| PWD-04 🖥️ | Complete a password reset | Open the emailed `/reset-password/:token` link, set a new password | Password updated, user is logged in automatically, redirected to home | | |
+| PWD-05 📮 | Reject expired/invalid reset token | `PATCH /api/auth/reset-password/:token` with a made-up or 31+ minute old token | `400 Bad Request`, "invalid or has expired" | | |
+| PWD-06 📮 | Reject weak new password | Reset with a password under 6 characters | `400 Bad Request` | | |
+| PWD-07 🖥️ | Old password stops working after reset | After resetting, try logging in with the old password | `401 Unauthorized` | | |
+| PWD-08 📮 | Forgot-password rate limiting | Submit the forgot-password form 6+ times in 15 minutes | 6th+ request rate-limited | | |
+
 ## B. Products
 
 | ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
@@ -139,6 +152,14 @@ Legend: 🖥️ = browser test, 📮 = Postman/curl test.
 | NOTIF-05 📮 | Notifications are per-user | Log in as User A and User B separately | Each only sees their own notifications | | |
 | NOTIF-06 🖥️ | Email notification (optional) | Configure SMTP in `.env`, place an order | An email arrives at the test inbox with order details | | |
 | NOTIF-07 🖥️ | Missing SMTP config doesn't break orders | Leave SMTP vars unset, place an order | Order still succeeds; in-app notification still appears; server logs one warning | | |
+
+## D3. Deployment Sanity Checks
+
+| ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
+|----|---|---|---|---|---|
+| DEPLOY-01 🖥️ | SPA routing survives a page reload | On the deployed site, navigate to `/products/<some-id>`, then hit browser Refresh | Page loads normally, not a "Not Found" error (see `DEPLOYMENT.md` if this fails) | | |
+| DEPLOY-02 🖥️ | SPA routing survives a direct URL visit | Paste `https://<your-site>/my-orders` directly into a fresh browser tab | Page loads (redirecting to login if not authenticated), not a 404 | | |
+| DEPLOY-03 📮 | API base URL is correct in the built bundle | Open DevTools → Network on the deployed site, trigger any API call | Request URL includes `/api/...`, not just the bare domain | | |
 
 ## E. Business Logic / Security Edge Cases
 

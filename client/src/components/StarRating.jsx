@@ -1,11 +1,6 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 
-/**
- * Display-only star rating (half-star rendering via a clipped overlay)
- * when `onChange` is omitted. Pass `onChange` to turn it into an
- * interactive 1-5 star picker for the review form.
- */
 const StarRating = ({ value = 0, onChange, size = 16, showValue = false, count }) => {
   const isInteractive = typeof onChange === 'function';
   const stars = [1, 2, 3, 4, 5];

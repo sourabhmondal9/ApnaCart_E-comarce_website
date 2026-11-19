@@ -64,7 +64,7 @@ const ProductDetails = () => {
         setMyReview(null);
       }
     } catch {
-      // non-critical: review section just shows what it could load
+      // review section just shows what it could load
     } finally {
       setReviewsLoading(false);
     }
@@ -75,7 +75,6 @@ const ProductDetails = () => {
     loadReviews();
     setQuantity(1);
     setFeedback(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isAuthenticated]);
 
   const handleAddToCart = async () => {

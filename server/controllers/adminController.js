@@ -6,7 +6,6 @@ import Order from '../models/Order.js';
 import ContactMessage from '../models/ContactMessage.js';
 
 // @route GET /api/admin/stats — admin only
-// Summary statistics for the admin dashboard, computed from live DB data.
 export const getDashboardStats = asyncHandler(async (req, res) => {
   const [
     totalProducts,

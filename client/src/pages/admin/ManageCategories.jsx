@@ -7,11 +7,11 @@ import ErrorMessage from '../../components/ErrorMessage.jsx';
 const emptyForm = { name: '', description: '', parentCategory: '' };
 
 const ManageCategories = () => {
-  const [categories, setCategories] = useState([]); // flat list, used for the table + parent dropdown
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState(null); // category being edited, or null for "new"
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -35,7 +35,7 @@ const ManageCategories = () => {
   }, []);
 
   const topLevelCategories = categories.filter((c) => !c.parentCategory);
-  // Only top-level categories can be chosen as a parent (one level of nesting only)
+  // Only top-level categories can be chosen.
   const parentOptions = topLevelCategories.filter((c) => !editing || c._id !== editing._id);
 
   const childrenOf = (parentId) => categories.filter((c) => c.parentCategory === parentId);

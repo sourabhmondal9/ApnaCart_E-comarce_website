@@ -3,11 +3,6 @@ import asyncHandler from '../utils/asyncHandler.js';
 import ApiError from '../utils/ApiError.js';
 import User from '../models/User.js';
 
-/**
- * Verifies the Bearer JWT, confirms the user still exists and is active,
- * and attaches the fresh user document (minus password) to req.user.
- * Never trusts an id/role embedded in the request body.
- */
 const protect = asyncHandler(async (req, res, next) => {
   let token;
   const authHeader = req.headers.authorization;

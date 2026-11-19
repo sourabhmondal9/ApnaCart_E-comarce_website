@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: 6,
-      select: false, // never returned by default queries
+      select: false,
     },
     phone: {
       type: String,
@@ -47,6 +47,9 @@ const userSchema = new mongoose.Schema(
     },
     address: { type: addressSchema, default: () => ({}) },
     isActive: { type: Boolean, default: true },
+
+    passwordResetToken: { type: String, select: false, default: undefined },
+    passwordResetExpires: { type: Date, select: false, default: undefined },
   },
   { timestamps: true }
 );
@@ -63,10 +66,11 @@ userSchema.methods.comparePassword = function comparePassword(candidate) {
   return bcrypt.compare(candidate, this.password);
 };
 
-// Belt-and-suspenders: strip password/__v even if select('+password') was used upstream
 userSchema.methods.toSafeObject = function toSafeObject() {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.passwordResetToken;
+  delete obj.passwordResetExpires;
   delete obj.__v;
   return obj;
 };

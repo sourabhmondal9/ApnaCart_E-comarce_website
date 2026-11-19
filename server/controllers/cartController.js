@@ -4,13 +4,7 @@ import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
 import { validateObjectId } from '../validators/productValidators.js';
 
-/**
- * Builds a response payload for a cart: populates product data and
- * recalculates every line total and the grand total from the CURRENT
- * database price/stock — the frontend's numbers are never trusted.
- * Items referencing deleted/inactive products are flagged, not silently
- * dropped, so the user can see and remove them.
- */
+
 const buildCartResponse = async (cart) => {
   if (!cart || cart.items.length === 0) {
     return { items: [], subtotal: 0, totalItems: 0 };
@@ -61,14 +55,14 @@ const getOrCreateCart = async (userId) => {
   return cart;
 };
 
-// @route GET /api/cart — protected
+// @route GET /api/cart
 export const getCart = asyncHandler(async (req, res) => {
   const cart = await getOrCreateCart(req.user._id);
   const data = await buildCartResponse(cart);
   res.status(200).json({ success: true, data });
 });
 
-// @route POST /api/cart/items — protected. body: { productId, quantity }
+// @route POST /api/cart/items
 export const addItemToCart = asyncHandler(async (req, res) => {
   const { productId, quantity = 1 } = req.body;
   validateObjectId(productId, 'product id');
@@ -127,7 +121,7 @@ export const updateCartItem = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Cart updated', data });
 });
 
-// @route DELETE /api/cart/items/:productId — protected
+// @route DELETE /api/cart/items/:productId
 export const removeCartItem = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   validateObjectId(productId, 'product id');
@@ -145,7 +139,7 @@ export const removeCartItem = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Item removed from cart', data });
 });
 
-// @route DELETE /api/cart — protected. clears the whole cart.
+// @route DELETE /api/cart
 export const clearCart = asyncHandler(async (req, res) => {
   const cart = await getOrCreateCart(req.user._id);
   cart.items = [];

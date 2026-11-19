@@ -6,12 +6,6 @@ import Order from '../models/Order.js';
 import { validateReviewInput } from '../validators/reviewValidators.js';
 import { validateObjectId } from '../validators/productValidators.js';
 
-/**
- * Recalculates a product's denormalized ratingsAverage/ratingsCount from
- * its current Review documents. Called after every create/update/delete
- * so the summary shown on product cards and details never drifts from
- * the underlying reviews.
- */
 const recalculateProductRating = async (productId) => {
   const [summary] = await Review.aggregate([
     { $match: { product: productId } },
@@ -24,11 +18,6 @@ const recalculateProductRating = async (productId) => {
   });
 };
 
-/**
- * A review counts as a "Verified Purchase" if this user has a Delivered
- * order that contains this product. Checked fresh each time a review is
- * written rather than trusted from the client.
- */
 const checkVerifiedPurchase = async (userId, productId) => {
   const delivered = await Order.exists({
     user: userId,
@@ -38,7 +27,7 @@ const checkVerifiedPurchase = async (userId, productId) => {
   return Boolean(delivered);
 };
 
-// @route GET /api/products/:id/reviews — public. Paginated, newest first.
+// @route GET /api/products/:id/reviews — public
 export const getProductReviews = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'product id');
   const { page = 1, limit = 10 } = req.query;
@@ -66,9 +55,7 @@ export const getProductReviews = asyncHandler(async (req, res) => {
 });
 
 // @route POST /api/products/:id/reviews — protected
-// Upsert: a customer can only have one review per product. Submitting
-// again edits their existing review rather than creating a duplicate
-// (also enforced at the DB level by Review's unique compound index).
+// Upsert: a customer can only have one review per product.
 export const upsertReview = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'product id');
   validateReviewInput(req.body);
@@ -78,10 +65,7 @@ export const upsertReview = asyncHandler(async (req, res) => {
   if (!product || !product.isActive) throw new ApiError(404, 'Product not found');
 
   const isVerifiedPurchase = await checkVerifiedPurchase(req.user._id, req.params.id);
-
-  // Explicit $set/$setOnInsert, rather than a bare update object, so this
-  // is unambiguously a partial update — never a full-document replacement
-  // that could wipe the product/user reference on an existing review.
+  
   const review = await Review.findOneAndUpdate(
     { product: req.params.id, user: req.user._id },
     {
@@ -119,9 +103,7 @@ export const deleteReview = asyncHandler(async (req, res) => {
 });
 
 // @route GET /api/products/:id/reviews/mine — protected
-// Lets the frontend know whether the current user already reviewed this
-// product (and with what), so it can pre-fill the review form as "edit"
-// rather than "write a new review".
+// Lets the frontend know the current user already reviewed this product.
 export const getMyReviewForProduct = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'product id');
   const review = await Review.findOne({ product: req.params.id, user: req.user._id });

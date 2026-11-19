@@ -19,3 +19,13 @@ export const updateProfile = async (payload) => {
   const { data } = await api.patch('/auth/me', payload);
   return data.data.user;
 };
+
+export const requestPasswordReset = async (email) => {
+  const { data } = await api.post('/auth/forgot-password', { email });
+  return data.message;
+};
+
+export const resetPassword = async (token, password) => {
+  const { data } = await api.patch(`/auth/reset-password/${token}`, { password });
+  return data.data; // { user, token }
+};

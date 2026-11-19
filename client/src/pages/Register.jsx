@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { isValidEmail } from '../utils/validators.js';
+import PasswordInput from '../components/PasswordInput.jsx';
 
 const Register = () => {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -29,7 +30,6 @@ const Register = () => {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      // role is intentionally never sent — the backend hardcodes 'customer'
       await register({ name: form.name.trim(), email: form.email.trim(), password: form.password });
       navigate('/', { replace: true });
     } catch (err) {
@@ -54,6 +54,7 @@ const Register = () => {
           id="email"
           name="email"
           type="email"
+          autoComplete="email"
           value={form.email}
           onChange={handleChange}
           aria-invalid={!!errors.email}
@@ -61,10 +62,10 @@ const Register = () => {
         {errors.email && <p className="field-error">{errors.email}</p>}
 
         <label htmlFor="password">Password</label>
-        <input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
+          autoComplete="new-password"
           value={form.password}
           onChange={handleChange}
           aria-invalid={!!errors.password}
@@ -72,10 +73,10 @@ const Register = () => {
         {errors.password && <p className="field-error">{errors.password}</p>}
 
         <label htmlFor="confirmPassword">Confirm password</label>
-        <input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
+          autoComplete="new-password"
           value={form.confirmPassword}
           onChange={handleChange}
           aria-invalid={!!errors.confirmPassword}

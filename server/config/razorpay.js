@@ -1,11 +1,5 @@
 import Razorpay from 'razorpay';
 
-/**
- * Lazily-constructed Razorpay client. We don't throw at import time if
- * keys are missing, so the rest of the app (which doesn't need payments)
- * still boots cleanly — the error only surfaces when a payment route is
- * actually hit without keys configured.
- */
 let instance = null;
 
 export const getRazorpayInstance = () => {

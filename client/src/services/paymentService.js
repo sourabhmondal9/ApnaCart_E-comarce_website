@@ -10,10 +10,7 @@ export const verifyRazorpayPayment = async (payload) => {
   return data.data.order;
 };
 
-/**
- * Loads the Razorpay Checkout script once and caches the promise, so
- * multiple checkout attempts don't inject the <script> tag repeatedly.
- */
+
 let razorpayScriptPromise = null;
 
 export const loadRazorpayScript = () => {
