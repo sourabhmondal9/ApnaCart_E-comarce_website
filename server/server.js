@@ -4,6 +4,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
+import { verifyEmailConfig } from './utils/sendEmail.js';
 
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -18,7 +19,6 @@ import notificationRoutes from './routes/notificationRoutes.js';
 
 import notFound from './middleware/notFoundMiddleware.js';
 import errorMiddleware from './middleware/errorMiddleware.js';
-
 
 const app = express();
 
@@ -61,6 +61,8 @@ const start = async () => {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
+
+  verifyEmailConfig().catch((err) => console.error('verifyEmailConfig() crashed unexpectedly:', err.message));
 };
 
 start();
