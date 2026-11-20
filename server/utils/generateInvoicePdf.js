@@ -1,5 +1,13 @@
 import PDFDocument from 'pdfkit';
 
+/**
+ * Streams a PDF invoice for the given order directly into an HTTP
+ * response. Keeps layout logic in one place so both the customer-facing
+ * and admin-facing "download invoice" routes render identically.
+ *
+ * `order` must already have `user` populated (name, email) — the caller
+ * is responsible for ownership/authorization checks before calling this.
+ */
 const formatINR = (amount) => `Rs. ${Number(amount || 0).toFixed(2)}`;
 
 export const streamInvoicePdf = (order, res) => {

@@ -54,10 +54,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   }, []);
 
-  // Used after a password reset the backend already returns a
-  // fresh user + token in that response, so this just applies it.
-  // no second round-trip to log in again right after resetting.
-
   const setSession = useCallback((sessionUser, token) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(sessionUser));

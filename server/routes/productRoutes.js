@@ -24,7 +24,8 @@ router.post('/', protect, adminOnly, createProduct);
 router.put('/:id', protect, adminOnly, updateProduct);
 router.delete('/:id', protect, adminOnly, deleteProduct);
 
-
+// Reviews are nested under their product, since they only ever make
+// sense in that context (GET is public — anyone can read reviews).
 router.get('/:id/reviews', getProductReviews);
 router.get('/:id/reviews/mine', protect, getMyReviewForProduct);
 router.post('/:id/reviews', protect, upsertReview);

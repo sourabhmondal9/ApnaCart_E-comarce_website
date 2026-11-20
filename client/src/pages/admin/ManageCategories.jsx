@@ -35,7 +35,6 @@ const ManageCategories = () => {
   }, []);
 
   const topLevelCategories = categories.filter((c) => !c.parentCategory);
-  // Only top-level categories can be chosen.
   const parentOptions = topLevelCategories.filter((c) => !editing || c._id !== editing._id);
 
   const childrenOf = (parentId) => categories.filter((c) => c.parentCategory === parentId);

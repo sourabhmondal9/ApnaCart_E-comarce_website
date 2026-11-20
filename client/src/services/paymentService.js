@@ -10,7 +10,6 @@ export const verifyRazorpayPayment = async (payload) => {
   return data.data.order;
 };
 
-
 let razorpayScriptPromise = null;
 
 export const loadRazorpayScript = () => {

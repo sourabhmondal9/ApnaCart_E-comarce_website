@@ -22,6 +22,15 @@ import errorMiddleware from './middleware/errorMiddleware.js';
 
 const app = express();
 
+// Render (like Heroku, Railway, etc.) puts the app behind exactly one
+// reverse proxy, which sets X-Forwarded-For to the real client IP. By
+// default Express doesn't trust that header (to prevent IP spoofing from
+// a malicious client setting it directly), which makes express-rate-limit
+// refuse to use it for identifying who's making a request. Trusting
+// exactly one hop tells Express "the first IP in X-Forwarded-For is real,
+// set by our own infrastructure" without blindly trusting the whole
+// header the way `app.set('trust proxy', true)` would.
+// Locally (no proxy in front), this setting is simply unused.
 app.set('trust proxy', 1);
 
 // --- Core middleware ---
@@ -61,7 +70,8 @@ const start = async () => {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
-
+  // Fire-and-forget: a slow/unreachable SMTP server should never delay
+  // the app from starting, but the result is still logged clearly.
   verifyEmailConfig().catch((err) => console.error('verifyEmailConfig() crashed unexpectedly:', err.message));
 };
 

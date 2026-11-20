@@ -64,7 +64,6 @@ const ProductDetails = () => {
         setMyReview(null);
       }
     } catch {
-      // review section just shows what it could load
     } finally {
       setReviewsLoading(false);
     }

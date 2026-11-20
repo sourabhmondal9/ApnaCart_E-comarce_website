@@ -1,4 +1,4 @@
-# Deployment Guide
+# Deployment Guide — Netlify (frontend) + Render (backend)
 
 This splits the app the way each platform is actually built for: Netlify serves the static React
 build and handles client-side routing; Render runs the persistent Express + MongoDB server
@@ -77,6 +77,14 @@ only `.env.example` should be in the repo.
    MONGO_URI="<your atlas uri>" npm run seed
    MONGO_URI="<your atlas uri>" npm run create-admin
    ```
+9. **`ERR_ERL_UNEXPECTED_X_FORWARDED_FOR` in the logs?** Render sits in front of your app as a
+   reverse proxy, which sets an `X-Forwarded-For` header carrying the real visitor IP. Express
+   doesn't trust that header by default (correctly — a malicious client could otherwise fake it
+   directly), so `express-rate-limit` refuses to use it until you explicitly tell Express how many
+   proxy hops are in front of it. `server.js` already has `app.set('trust proxy', 1)` for exactly
+   this reason — if you're seeing this error, make sure that line is actually present (it has no
+   effect running locally with no proxy in front, so it's easy to accidentally strip out or
+   forget to carry over if you've been copy-pasting changes into your own repo).
 
 ---
 

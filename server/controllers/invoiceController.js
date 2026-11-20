@@ -4,8 +4,8 @@ import Order from '../models/Order.js';
 import { validateObjectId } from '../validators/productValidators.js';
 import { streamInvoicePdf } from '../utils/generateInvoicePdf.js';
 
-// @route GET /api/orders/:id/invoice — Owner or admin only.
-// Generated PDF invoice.
+// @route GET /api/orders/:id/invoice — protected. Owner or admin only.
+// Streams a generated PDF invoice; does not persist anything to disk.
 export const downloadInvoice = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'order id');
   const order = await Order.findById(req.params.id).populate('user', 'name email');

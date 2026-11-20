@@ -4,7 +4,7 @@ import ContactMessage from '../models/ContactMessage.js';
 import { validateContactInput } from '../validators/contactValidators.js';
 import { validateObjectId } from '../validators/productValidators.js';
 
-// @route POST /api/contact
+// @route POST /api/contact — public (rate-limited in routes)
 export const submitContactMessage = asyncHandler(async (req, res) => {
   validateContactInput(req.body);
   const { name, email, subject, message } = req.body;
@@ -14,7 +14,7 @@ export const submitContactMessage = asyncHandler(async (req, res) => {
     email: email.toLowerCase().trim(),
     subject: subject.trim(),
     message: message.trim(),
-    user: req.user ? req.user._id : undefined,
+    user: req.user ? req.user._id : undefined, // attached only if an optional-auth token was valid
   });
 
   res.status(201).json({
@@ -24,7 +24,7 @@ export const submitContactMessage = asyncHandler(async (req, res) => {
   });
 });
 
-// @route GET /api/contact — admin only.
+// @route GET /api/contact — admin only. Paginated inbox for submitted messages.
 export const getContactMessages = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20 } = req.query;
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
@@ -47,7 +47,7 @@ export const getContactMessages = asyncHandler(async (req, res) => {
   });
 });
 
-// @route PATCH /api/contact/:id/resolve
+// @route PATCH /api/contact/:id/resolve — admin only. body: { isResolved: boolean }
 export const setMessageResolved = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'message id');
   const { isResolved } = req.body;

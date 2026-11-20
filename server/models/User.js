@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: 6,
-      select: false,
+      select: false, // never returned by default queries
     },
     phone: {
       type: String,
@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema(
     address: { type: addressSchema, default: () => ({}) },
     isActive: { type: Boolean, default: true },
 
+    // Password reset flow: only a SHA-256 hash of the reset token is ever
+    // stored (never the raw token, which is emailed to the user once and
+    // never persisted anywhere) — mirrors how passwords themselves are
+    // never stored in plain text. select: false keeps these out of normal
+    // queries/API responses by default, same as password.
     passwordResetToken: { type: String, select: false, default: undefined },
     passwordResetExpires: { type: Date, select: false, default: undefined },
   },
@@ -66,6 +71,7 @@ userSchema.methods.comparePassword = function comparePassword(candidate) {
   return bcrypt.compare(candidate, this.password);
 };
 
+// Belt-and-suspenders: strip password/__v even if select('+password') was used upstream
 userSchema.methods.toSafeObject = function toSafeObject() {
   const obj = this.toObject();
   delete obj.password;

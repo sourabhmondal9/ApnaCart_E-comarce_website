@@ -1,9 +1,13 @@
 /**
+ * Safely creates (or promotes) an administrator account.
+ * This is a one-off LOCAL script — never expose admin creation over a
+ * public API route.
+ *
  * Usage (from the server/ folder):
- *   ADMIN_NAME="Site Admin" ADMIN_EMAIL="admin@gmail.com" ADMIN_PASSWORD="admin123!" npm run create-admin
- *   Or run `npm run create-admin` and it will prompt interactively.
+ *   ADMIN_NAME="Site Admin" ADMIN_EMAIL="admin@example.com" ADMIN_PASSWORD="ChangeMe123!" npm run create-admin
+ *
+ * Or just run `npm run create-admin` and it will prompt interactively.
  */
-
 import dotenv from 'dotenv';
 dotenv.config();
 import readline from 'readline';
@@ -41,7 +45,7 @@ const run = async () => {
   if (existing) {
     existing.role = 'admin';
     existing.name = name;
-    existing.password = password;
+    existing.password = password; // pre-save hook re-hashes it
     existing.isActive = true;
     await existing.save();
     console.log(`Existing user "${email}" promoted to admin and password updated.`);

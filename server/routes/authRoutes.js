@@ -14,6 +14,8 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many attempts, please try again later' },
 });
 
+// Stricter limit on forgot-password specifically: it triggers an email
+// send, so it's worth throttling harder than ordinary login attempts.
 const forgotPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 5,

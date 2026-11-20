@@ -1,5 +1,6 @@
-# ApnaCart — E-Commerce Website
+# ApnaCart — MERN Stack E-Commerce Website
 ### "Apni Pasand. Apni Shopping."
+### MCA College Project: "Design and Development of an E-Commerce Website Using the MERN Stack"
 
 A full-stack e-commerce web application built with **MongoDB, Express.js, React.js and Node.js**.
 Customers can browse, search and filter products, manage a cart, check out with Cash on Delivery,
@@ -21,7 +22,7 @@ mca-ecommerce/
   server/     Node.js + Express + MongoDB REST API
   client/     React + Vite frontend
   README.md   This file
-  TESTING.md  test cases
+  TESTING.md  Manual test checklist / Postman-style test cases
 ```
 
 See inline comments in each file for explanations — this project is written to be readable by an
@@ -150,6 +151,62 @@ Cash on Delivery works with no setup. To also enable the "Pay Online" option:
 
 If `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET` are left unset, Cash on Delivery still works fine —
 only the "Pay Online" button will show a clear error instead of silently failing.
+
+### Setting up email (SMTP) — for order emails and password reset
+
+Without this, the app still works fully — in-app order notifications still fire, and "forgot
+password" still "succeeds" from the user's point of view — but no actual email is ever sent. If
+your users report never receiving a password-reset or order-confirmation email, this section is
+almost always why.
+
+**Check the server's startup log first.** Every time the backend starts, it now prints one of
+three lines (added specifically to make this easy to diagnose):
+```
+📧 Email is NOT configured ...                          → SMTP_HOST/USER/PASS are missing entirely
+📧 Email IS configured but verification FAILED: ...      → credentials are set but wrong
+📧 Email is configured and verified ... ready to send.   → everything is correct
+```
+On Render, check this in the backend service's **Logs** tab right after a deploy. If you see
+anything other than the third line, emails are not being sent — fix the cause below, then redeploy
+(or just restart the service) and confirm the log now shows the "verified" line before testing the
+actual forgot-password flow again.
+
+**Option A — Gmail** (free, good for a demo):
+1. Turn on 2-Step Verification on the Google account you'll send from (required — App Passwords
+   don't exist without it): https://myaccount.google.com/security
+2. Generate an App Password: https://myaccount.google.com/apppasswords — choose "Mail" as the app.
+   Copy the 16-character password it gives you.
+3. Set in `server/.env` (or your host's environment variables):
+   ```
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_SECURE=false
+   SMTP_USER=your_gmail_address@gmail.com
+   SMTP_PASS=the_16_character_app_password      # NOT your normal Gmail password
+   SMTP_FROM=ApnaCart <your_gmail_address@gmail.com>
+   ```
+   Using your regular Gmail account password instead of an App Password is the single most common
+   cause of "verification FAILED" — Gmail rejects it outright.
+
+**Option B — Ethereal** (fake inbox, zero setup, nothing ever really sent — good for just proving
+the flow works end-to-end without needing a real mailbox):
+1. Go to https://ethereal.email and click "Create Ethereal Account" — it instantly gives you a
+   throwaway SMTP host, user, and password.
+2. Put those three values into `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS` (`SMTP_PORT=587`, `SMTP_SECURE=false`).
+3. After triggering an email from the app, go back to https://ethereal.email/messages and log in
+   with the same account — your "sent" email is sitting there, viewable in a browser, never
+   delivered anywhere real.
+
+**Other things to check if the startup log says "verified" but emails still don't arrive:**
+- Check the recipient's **spam/junk folder** — a freshly-configured sender has no reputation yet.
+- Confirm `SMTP_PORT`/`SMTP_SECURE` match: `587` pairs with `SMTP_SECURE=false` (STARTTLS);
+  `465` pairs with `SMTP_SECURE=true`. Mismatching these is a common cause of connection errors.
+- If using a platform other than Gmail/Ethereal (Outlook, a custom domain's mail server, SendGrid's
+  SMTP relay, etc.), double-check that provider's specific host/port/auth requirements — they vary.
+- Render's free tier can have outbound SMTP connections blocked or rate-limited by some providers;
+  if Gmail specifically refuses connections from a Render IP, Ethereal (which has no such
+  restrictions) is the fastest way to confirm the *application* logic is correct, isolating the
+  problem to the mail provider rather than the code.
 
 ---
 

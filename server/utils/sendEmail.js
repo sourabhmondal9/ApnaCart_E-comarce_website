@@ -18,7 +18,14 @@ const getTransporter = () => {
   return transporter;
 };
 
-
+/**
+ * Sends a plain-text email if SMTP is configured; otherwise logs a notice
+ * once and does nothing. Never throws — email is a nice-to-have alongside
+ * the in-app notification system, not something that should ever fail an
+ * order or a status update. Callers should not await this inside a
+ * request path that must respond quickly; fire-and-forget with .catch()
+ * is the intended usage (see utils/notify.js).
+ */
 export const sendEmail = async ({ to, subject, text }) => {
   if (!isEmailConfigured()) {
     if (!warnedOnce) {
@@ -44,10 +51,18 @@ export const sendEmail = async ({ to, subject, text }) => {
   }
 };
 
+/**
+ * Verifies SMTP credentials actually work by opening a connection and
+ * authenticating — without sending a real email. Meant to be called once
+ * at server startup (see server.js) so a broken SMTP config shows up
+ * immediately and loudly in the deploy logs, rather than only surfacing
+ * later as a silently-swallowed failure inside a fire-and-forget
+ * sendEmail() call triggered by some user's forgot-password request.
+ */
 export const verifyEmailConfig = async () => {
   if (!isEmailConfigured()) {
     console.warn(
-      '📧 Email is NOT configured (SMTP_HOST/SMTP_USER/SMTP_PASS missing) — order notifications and password-reset emails will not be sent. In-app notifications still work.'
+      '📧 Email is NOT configured (SMTP_HOST/SMTP_USER/SMTP_PASS missing) — order notifications and password-reset emails will not be sent. In-app notifications still work regardless. See README Section 4 for setup.'
     );
     return;
   }
@@ -58,9 +73,9 @@ export const verifyEmailConfig = async () => {
   } catch (err) {
     console.error(
       `📧 Email IS configured but verification FAILED: ${err.message}\n` +
-      '   This usually means: wrong SMTP_USER/SMTP_PASS, a Gmail account password used instead of an' +
-      ' App Password, or an incorrect SMTP_HOST/SMTP_PORT/SMTP_SECURE combination. Password-reset and' +
-      ' order emails will silently fail to send until this is fixed — see README Section 4.'
+        '   This usually means: wrong SMTP_USER/SMTP_PASS, a Gmail account password used instead of an' +
+        ' App Password, or an incorrect SMTP_HOST/SMTP_PORT/SMTP_SECURE combination. Password-reset and' +
+        ' order emails will silently fail to send until this is fixed — see README Section 4.'
     );
   }
 };

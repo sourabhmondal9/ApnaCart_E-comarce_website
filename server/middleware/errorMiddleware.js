@@ -1,4 +1,8 @@
-
+/**
+ * Centralized error handler. Converts Mongoose/JWT/custom errors into a
+ * consistent JSON shape and never leaks stack traces or internals in
+ * production.
+ */
 // eslint-disable-next-line no-unused-vars
 const errorMiddleware = (err, req, res, next) => {
   let statusCode = err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;

@@ -9,7 +9,7 @@ const optionalAuth = async (req, res, next) => {
       const user = await User.findById(decoded.id);
       if (user && user.isActive) req.user = user;
     } catch {
-      // invalid/expired token on a public route — continue as anonymous
+      // invalid/expired token on a public route — ignore and continue as anonymous
     }
   }
   next();

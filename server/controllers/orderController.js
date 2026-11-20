@@ -9,6 +9,8 @@ import { validateShippingAddress } from '../validators/orderValidators.js';
 import { validateObjectId } from '../validators/productValidators.js';
 import { notify } from '../utils/notify.js';
 
+// Allowed forward transitions. 'Cancelled' is reachable from any
+// non-terminal state; terminal states cannot be changed further.
 const ALLOWED_TRANSITIONS = {
   Placed: ['Confirmed', 'Cancelled'],
   Confirmed: ['Shipped', 'Cancelled'],
@@ -17,7 +19,13 @@ const ALLOWED_TRANSITIONS = {
   Cancelled: [],
 };
 
-/*
+/**
+ * Reads the user's cart fresh from the DB and validates every line against
+ * CURRENT product data (price, stock, active status). Never trusts
+ * anything the client claims about prices or totals. Shared by both the
+ * COD flow and the Razorpay verification flow so stock/price rules are
+ * enforced identically regardless of payment method.
+ *
  * Throws ApiError(400, ...) on any problem. Returns { cart, orderItems,
  * totalAmount } on success.
  */
@@ -42,7 +50,7 @@ const buildOrderItemsFromCart = async (userId) => {
     if (item.quantity > product.stock) {
       throw new ApiError(400, `Insufficient stock for "${product.name}". Only ${product.stock} left.`);
     }
-    const price = product.price;
+    const price = product.price; // server-side snapshot, never client-supplied
     totalAmount += price * item.quantity;
     orderItems.push({
       product: product._id,
@@ -56,6 +64,19 @@ const buildOrderItemsFromCart = async (userId) => {
   return { cart, orderItems, totalAmount };
 };
 
+/**
+ * Decrements stock and creates the Order document, using a MongoDB
+ * transaction when the deployment supports replica-set transactions
+ * (Atlas, or a local replica set), and falling back to a sequential,
+ * conditional-update approach on standalone MongoDB (common in local
+ * college dev setups) that still prevents overselling. Clears the cart
+ * only after the order is successfully persisted. `extraFields` lets
+ * callers attach payment-method-specific data (e.g. Razorpay IDs).
+ *
+ * `user` is the full authenticated user doc (not just an id) — needed so
+ * the post-creation notification (in-app + optional email) has a name
+ * and email to address, without an extra DB query.
+ */
 const commitOrder = async ({ user, cart, orderItems, totalAmount, shippingAddress, paymentMethod, paymentStatus, extraFields = {} }) => {
   const userId = user._id;
   let session = null;
@@ -101,6 +122,10 @@ const commitOrder = async ({ user, cart, orderItems, totalAmount, shippingAddres
   } catch (err) {
     if (session) await session.abortTransaction().catch(() => {});
 
+    // Transactions require a replica set. Standalone local MongoDB throws
+    // here — fall back to a sequential approach that still prevents
+    // overselling via the conditional ($gte stock) update, just without
+    // cross-collection atomicity.
     const isTransactionsUnsupported =
       err.message && /Transaction numbers|replica set|transactions are not supported/i.test(err.message);
 
@@ -147,7 +172,9 @@ const commitOrder = async ({ user, cart, orderItems, totalAmount, shippingAddres
     }
   }
 
-  // Notify the customer their order was placed — always
+  // Notify the customer their order was placed — in-app always, email if
+  // SMTP is configured. Never allowed to fail the order itself: a problem
+  // sending the notification is logged, not thrown, from inside notify().
   const orderNumber = createdOrder._id.toString().slice(-8).toUpperCase();
   await notify({
     user,
@@ -160,7 +187,7 @@ const commitOrder = async ({ user, cart, orderItems, totalAmount, shippingAddres
   return { order: createdOrder, usedTransaction: useTransaction };
 };
 
-// @route POST /api/orders — Cash on Delivery.
+// @route POST /api/orders — protected. Cash on Delivery flow.
 export const createOrder = asyncHandler(async (req, res) => {
   validateShippingAddress(req.body.shippingAddress);
   const { shippingAddress } = req.body;
@@ -184,13 +211,13 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
 });
 
-// @route GET /api/orders/my-orders
+// @route GET /api/orders/my-orders — protected
 export const getMyOrders = asyncHandler(async (req, res) => {
   const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
   res.status(200).json({ success: true, data: { orders } });
 });
 
-// @route GET /api/orders/:id — owner or admin only.
+// @route GET /api/orders/:id — protected. owner or admin only.
 export const getOrderById = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'order id');
   const order = await Order.findById(req.params.id).populate('user', 'name email');
@@ -205,7 +232,7 @@ export const getOrderById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { order } });
 });
 
-// @route GET /api/orders — admin only.
+// @route GET /api/orders — admin only. paginated, filterable by status.
 export const getAllOrders = asyncHandler(async (req, res) => {
   const { status, page = 1, limit = 15 } = req.query;
   const query = {};
@@ -233,6 +260,7 @@ export const getAllOrders = asyncHandler(async (req, res) => {
 });
 
 // @route PATCH /api/orders/:id/status — admin only
+// Validates the transition and restores stock exactly once on cancellation.
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'order id');
   const { status } = req.body;
@@ -250,6 +278,8 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   }
 
   if (status === 'Cancelled' && !order.stockRestored) {
+    // Restore stock exactly once; the stockRestored flag guards against
+    // a repeated cancellation request restoring inventory twice.
     for (const item of order.items) {
       if (item.product) {
         await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
@@ -265,7 +295,8 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   order.orderStatus = status;
   await order.save();
 
-  // Notify the customer of the status change.
+  // Notify the customer of the status change — fetch just enough of the
+  // user doc (name/email) to address the notification/email.
   const customer = await User.findById(order.user).select('name email');
   if (customer) {
     const orderNumber = order._id.toString().slice(-8).toUpperCase();
@@ -281,4 +312,6 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: `Order marked as ${status}`, data: { order } });
 });
 
+// Exported for reuse by the payment controller (Razorpay verification
+// needs the exact same cart-validation and order-commit logic).
 export { buildOrderItemsFromCart, commitOrder };

@@ -15,6 +15,8 @@ const signToken = (id) =>
   });
 
 // @route POST /api/auth/register
+// Public. Only accepts name/email/password/phone — role is never taken
+// from the request body, so nobody can self-register as admin.
 export const register = asyncHandler(async (req, res) => {
   validateRegisterInput(req.body);
   const { name, email, password, phone } = req.body;
@@ -29,7 +31,7 @@ export const register = asyncHandler(async (req, res) => {
     email: email.toLowerCase().trim(),
     password,
     phone: phone || undefined,
-    role: 'customer',
+    role: 'customer', // hardcoded; ignore any role sent by the client
   });
 
   const token = signToken(user._id);
@@ -66,11 +68,15 @@ export const login = asyncHandler(async (req, res) => {
   });
 });
 
-
+// @route GET /api/auth/me
+// Protected.
 export const getMe = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: { user: req.user.toSafeObject() } });
 });
 
+// @route PATCH /api/auth/me
+// Protected. Allowlisted fields only — role/email/password changes are
+// out of scope here on purpose to keep auth state changes explicit.
 export const updateMe = asyncHandler(async (req, res) => {
   const allowed = ['name', 'phone', 'address'];
   const updates = {};
@@ -86,7 +92,11 @@ export const updateMe = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Profile updated', data: { user: user.toSafeObject() } });
 });
 
-
+// @route POST /api/auth/forgot-password
+// Public. body: { email }
+// Always responds with the same generic message whether or not the email
+// is registered — this prevents an attacker from using this endpoint to
+// discover which emails have accounts (user enumeration).
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
   if (!email || typeof email !== 'string' || !emailRegex.test(email)) {
@@ -97,6 +107,9 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email: email.toLowerCase().trim() });
 
   if (user && user.isActive) {
+    // Raw token is emailed once and never stored anywhere; only its
+    // SHA-256 hash is persisted, the same principle as password hashing —
+    // so even a full database leak can't be used to reset accounts.
     const rawToken = crypto.randomBytes(32).toString('hex');
     user.passwordResetToken = crypto.createHash('sha256').update(rawToken).digest('hex');
     user.passwordResetExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
@@ -112,6 +125,9 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, message: genericMessage });
 });
+
+// @route PATCH /api/auth/reset-password/:token
+// Public. body: { password }
 
 export const resetPassword = asyncHandler(async (req, res) => {
   const { token } = req.params;
@@ -136,7 +152,8 @@ export const resetPassword = asyncHandler(async (req, res) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-
+  // Log the user in immediately after a successful reset, so they land
+  // straight back in the app instead of having to log in a second time.
   const jwtToken = signToken(user._id);
   res.status(200).json({
     success: true,

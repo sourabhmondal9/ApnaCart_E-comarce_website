@@ -36,12 +36,6 @@ const Checkout = () => {
     navigate(`/my-orders/${order._id}`, { replace: true, state: { justPlaced: true } });
   };
 
-  /**
-   * Opens Razorpay's On success, sends the returned
-   * payment identifiers + signature to the backend for verification —
-   * the backend recomputes the HMAC signature itself and never trusts the "success" callback alone.
-   * Order is only created after that server-side verification passes.
-   */
   const payOnline = async () => {
     const scriptLoaded = await loadRazorpayScript();
     if (!scriptLoaded) {

@@ -1,7 +1,6 @@
 import React from 'react';
 
 // `categories` is the tree-shaped response from GET /api/categories
-// subcategories indented directly under their categories in the dropdown.
 
 const CategoryFilter = ({ categories, selected, onChange }) => (
   <div className="category-filter">

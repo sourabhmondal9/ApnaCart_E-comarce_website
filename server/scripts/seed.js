@@ -1,3 +1,10 @@
+/**
+ * Idempotent seed script: creates sample categories and ~20 products.
+ * Safe to run multiple times — uses upsert-style logic so re-running it
+ * will not create duplicate categories or products.
+ *
+ * Usage (from server/ folder): npm run seed
+ */
 import dotenv from 'dotenv';
 dotenv.config();
 import mongoose from 'mongoose';
@@ -13,7 +20,8 @@ const categoriesData = [
   { name: 'Accessories', description: 'Bags, watches and everyday carry' },
 ];
 
-
+// imageUrl values use Unsplash's stable "source" style placeholders keyed
+// by category so the catalogue never shows a broken image link.
 const productsByCategory = {
   Electronics: [
     { name: 'Wireless Bluetooth Headphones', price: 2499, stock: 40, description: 'Over-ear wireless headphones with 30-hour battery life and noise isolation.' },

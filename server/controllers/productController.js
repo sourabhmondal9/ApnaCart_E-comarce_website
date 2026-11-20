@@ -6,11 +6,14 @@ import Category from '../models/Category.js';
 import { validateProductInput, validateObjectId } from '../validators/productValidators.js';
 
 // @route GET /api/products
+// Public. Supports search, category filter, sort, pagination.
+// Only returns isActive products for non-admin requests.
 export const getProducts = asyncHandler(async (req, res) => {
   const { search, category, sort, page = 1, limit = 12, includeInactive } = req.query;
 
   const query = {};
 
+  // Only an authenticated admin viewing the admin list may see inactive products
   const wantsInactive = includeInactive === 'true' && req.user && req.user.role === 'admin';
   if (!wantsInactive) query.isActive = true;
 
@@ -20,6 +23,9 @@ export const getProducts = asyncHandler(async (req, res) => {
 
   if (category && typeof category === 'string') {
     validateObjectId(category, 'category id');
+    // If the selected category has subcategories, include products filed
+    // directly under those subcategories too — selecting a parent like
+    // "Clothing" should also surface products under "Clothing > Men".
     const subcategoryIds = await Category.find({ parentCategory: category }).distinct('_id');
     query.category = subcategoryIds.length > 0 ? { $in: [category, ...subcategoryIds] } : category;
   }
@@ -112,6 +118,8 @@ export const updateProduct = asyncHandler(async (req, res) => {
 });
 
 // @route DELETE /api/products/:id — admin only
+// Prefers safe deactivation over hard delete when the product is
+// referenced by any existing order, so order history stays intact.
 export const deleteProduct = asyncHandler(async (req, res) => {
   validateObjectId(req.params.id, 'product id');
   const product = await Product.findById(req.params.id);
