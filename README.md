@@ -1,6 +1,6 @@
-# ApnaCart — MERN Stack E-Commerce Website
+# ApnaCart — E-Commerce Website
 ### "Apni Pasand. Apni Shopping."
-### MCA College Project: "Design and Development of an E-Commerce Website Using the MERN Stack"
+### MCA College Project: "Design and Development of an E-Commerce Website"
 
 A full-stack e-commerce web application built with **MongoDB, Express.js, React.js and Node.js**.
 Customers can browse, search and filter products, manage a cart, check out with Cash on Delivery,

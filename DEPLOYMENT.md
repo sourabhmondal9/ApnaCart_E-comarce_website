@@ -1,4 +1,4 @@
-# Deployment Guide — Netlify (frontend) + Render (backend)
+# Deployment Guide
 
 This splits the app the way each platform is actually built for: Netlify serves the static React
 build and handles client-side routing; Render runs the persistent Express + MongoDB server
@@ -6,8 +6,8 @@ build and handles client-side routing; Render runs the persistent Express + Mong
 which Netlify's serverless functions aren't well suited for — see the note at the bottom).
 
 You'll end up with two URLs, e.g.:
-- Frontend: `https://your-site.netlify.app`
-- Backend: `https://mca-ecommerce-api.onrender.com`
+- Frontend: `https://render.com`
+- Backend: `https://render.com`
 
 Deploy the backend first — the frontend needs its URL.
 
@@ -56,7 +56,7 @@ only `.env.example` should be in the repo.
    | `MONGO_URI` | your MongoDB Atlas connection string |
    | `JWT_SECRET` | a long random string |
    | `JWT_EXPIRES_IN` | `7d` |
-   | `CLIENT_URL` | `https://your-site.netlify.app` (set this after Part 3, then redeploy) |
+   | `CLIENT_URL` | (set this after Part 3, then redeploy) |
    | `RAZORPAY_KEY_ID` | your Razorpay test key id (optional) |
    | `RAZORPAY_KEY_SECRET` | your Razorpay test key secret (optional) |
 
@@ -90,7 +90,7 @@ only `.env.example` should be in the repo.
 
 ## Part 3 — Deploy the frontend to Netlify
 
-1. Sign up free at https://netlify.com (GitHub sign-in works).
+1. Sign up free at https://render.com (GitHub sign-in works).
 2. Click **Add new site** → **Import an existing project**, connect the same GitHub repo.
 3. Configure the build:
    - **Base directory:** `client`
@@ -102,8 +102,7 @@ only `.env.example` should be in the repo.
    | Key | Value |
    |---|---|
    | `VITE_API_URL` | `https://<your-render-url>/api` |
-5. Click **Deploy site**. Netlify gives you a URL like `https://random-name-123.netlify.app`
-   (you can rename it under **Site configuration → Change site name**).
+5. Click **Deploy site**.  (you can rename it under **Site configuration → Change site name**).
 
 ---
 
@@ -143,9 +142,7 @@ the existing `vite.config.js` and build command need no changes.
 ## Part 4 — Connect the two
 
 Go back to Render and update the `CLIENT_URL` environment variable to your real Netlify URL
-(`https://your-site.netlify.app`, no trailing slash), then trigger a manual redeploy on Render so
-the updated CORS setting takes effect. Without this step, the browser will block API requests from
-your Netlify site with a CORS error.
+(, no trailing slash), then trigger a manual redeploy on Render so the updated CORS setting takes effect. Without this step, the browser will block API requests from site with a CORS error.
 
 ---
 
