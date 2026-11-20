@@ -18,6 +18,7 @@ const getTransporter = () => {
   return transporter;
 };
 
+
 export const sendEmail = async ({ to, subject, text }) => {
   if (!isEmailConfigured()) {
     if (!warnedOnce) {
@@ -40,26 +41,5 @@ export const sendEmail = async ({ to, subject, text }) => {
   } catch (err) {
     console.error('Failed to send email:', err.message);
     return { sent: false, reason: 'send_failed', error: err.message };
-  }
-};
-
-export const verifyEmailConfig = async () => {
-  if (!isEmailConfigured()) {
-    console.warn(
-      '📧 Email is NOT configured (SMTP_HOST/SMTP_USER/SMTP_PASS missing) — order notifications and password-reset emails will not be sent. In-app notifications still work.'
-    );
-    return;
-  }
-
-  try {
-    await getTransporter().verify();
-    console.log(`📧 Email is configured and verified (SMTP_HOST=${process.env.SMTP_HOST}) — ready to send.`);
-  } catch (err) {
-    console.error(
-      `📧 Email IS configured but verification FAILED: ${err.message}\n` +
-        '   This usually means: wrong SMTP_USER/SMTP_PASS, a Gmail account password used instead of an' +
-        ' App Password, or an incorrect SMTP_HOST/SMTP_PORT/SMTP_SECURE combination. Password-reset and' +
-        ' order emails will silently fail to send until this is fixed — see README Section 4.'
-    );
   }
 };
