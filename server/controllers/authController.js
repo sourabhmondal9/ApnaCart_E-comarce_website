@@ -158,7 +158,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   // Prevent email/account enumeration
   const genericMessage =
-    'If an account with that email exists, a password reset link has been sent.';
+    'A password reset link has been sent to that email.';
 
   const user = await User.findOne({
     email: email.toLowerCase().trim(),
