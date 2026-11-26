@@ -28,9 +28,13 @@ const Login = () => {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      await login(email, password);
-      const redirectTo = location.state?.from?.pathname || '/';
-      navigate(redirectTo, { replace: true });
+      const loggedInUser = await login(email, password);
+      if (loggedInUser.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        const redirectTo = location.state?.from?.pathname || '/';
+        navigate(redirectTo, { replace: true });
+      }
     } catch (err) {
       setSubmitError(err.message);
     } finally {
